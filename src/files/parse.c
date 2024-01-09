@@ -99,7 +99,7 @@ void    check_args(int ac, char **av, char **stdinput, char **file_list, int *op
 		}
 		while ((tmp = get_next_line(STDIN_FILENO)))
 		{
-			*stdinput = ft_strjoin(*stdinput, tmp);
+			*stdinput = ft_append(*stdinput, tmp);
 			if (!*stdinput)
 			{
 				free(*file_list);
