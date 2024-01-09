@@ -1,7 +1,7 @@
 # Prerequisites
 *.d
 
-# Object files
+# Object src
 *.o
 *.ko
 *.obj
@@ -36,7 +36,7 @@
 *.x86_64
 *.hex
 
-# Debug files
+# Debug src
 *.dSYM/
 *.su
 *.idb
