@@ -21,7 +21,7 @@ char	*ft_strchr(const char *s, int c)
 	c_to_find = (unsigned char)c;
 	p = (const unsigned char *)s;
 	flag = 0;
-	while (*p && flag == 0 && *p != ' ')
+	while (*p && flag == 0)
 	{
 		if (*p == c_to_find)
 			flag = 1;

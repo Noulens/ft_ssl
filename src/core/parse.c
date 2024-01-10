@@ -23,6 +23,18 @@ t_parsed	parse(int ac, char **av)
 	exit(1);
 }
 
+void read_stdin(char *stdinput, t_opt *opt)
+{
+	char	*tmp = NULL;
+	while ((tmp = get_next_line(STDIN_FILENO)))
+	{
+		if (!(stdinput = ft_append(stdinput, tmp)))
+			error("read_stdin", errno, TRUE);
+		free(tmp);
+	}
+	opt->stdinput = stdinput;
+}
+
 t_opt	*md5parser(int ac, char **av)
 {
 	size_t	len;
@@ -31,12 +43,17 @@ t_opt	*md5parser(int ac, char **av)
 	char    *tmp = NULL;
 	t_opt	*opt = NULL;
 
-	opt = (t_opt *)malloc(sizeof(t_opt));
-	if (!opt)
-		error("enomem md5parser", errno, TRUE);
-	av += 2;
+	(void)tmp;
+	if (!(opt = (t_opt *)malloc(sizeof(t_opt))))
+		error("md5parser", errno, TRUE);
 	if (ac == 2)
-		return (NULL);
+	{
+		opt->flags = 0;
+		opt->files = NULL;
+		read_stdin(stdinput, opt);
+		return (opt);
+	}
+	av += 2;
 	len = ft_ptrlen((const char **)av);
 	while (len)
 	{
@@ -60,7 +77,9 @@ t_opt	*md5parser(int ac, char **av)
 						opt->flags |= e_s;
 						break;
 					default:
-						fprintf(stderr, "ft_ssl: md5: invalid option -- \'%c\'\n", **av);
+						ft_putstr_fd("ft_ssl: md5: invalid option -- \'", STDERR_FILENO);
+						ft_putchar_fd(**av, STDERR_FILENO);
+						ft_putstr_fd("\'\n", STDERR_FILENO);
 						exit(1);
 				}
 				++*av;
@@ -75,23 +94,22 @@ t_opt	*md5parser(int ac, char **av)
 	}
 	while (len--)
 	{
+		char	*p = NULL;
+		while ((p = ft_strchr(*av, ' ')))
+			*p = '_';
 		file_list = ft_append(file_list, *av);
+		if (!file_list)
+			error("check args: ", errno, TRUE);
+		file_list = ft_append(file_list, " ");
 		if (!file_list)
 			error("check args: ", errno, TRUE);
 		++av;
 	}
-	while ((tmp = get_next_line(STDIN_FILENO)))
-	{
-		stdinput = ft_append(stdinput, tmp);
-		if (!stdinput)
-		{
-			free(file_list);
-			error("check args: ", errno, TRUE);
-		}
-		free(tmp);
-	}
-	opt->stdinput = ft_split(stdinput, ' ');
-	opt->files = ft_split(file_list, ' ');
+	opt->stdinput = NULL;
+//	read_stdin(stdinput, opt);
+	if (!(opt->files = ft_split(file_list, ' ')))
+		error("md5parser", errno, TRUE);
+	free(file_list);
 	return (opt);
 }
 

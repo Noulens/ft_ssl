@@ -34,7 +34,7 @@ typedef union u_dword
 typedef struct s_opt
 {
 	int		flags;
-	char	**stdinput;
+	char	*stdinput;
 	char 	**files;
 }	t_opt;
 

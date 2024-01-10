@@ -10,5 +10,10 @@ int main(int ac, char **av)
 
 	parser = parse(ac, av);
 	parser.opt = parser.parse_ptr(ac, av);
-	return (parser.opt->flags);
+	if (parser.opt->stdinput)
+		printf("%s\n", parser.opt->stdinput);
+	for (int i = 0; parser.opt->files[i]; i++)
+		printf("%s\n", parser.opt->files[i]);
+	clean(&parser);
+	return (0);
 }

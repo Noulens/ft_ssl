@@ -25,11 +25,10 @@ void    error(char *msg, int error_code, int must_exit)
 	}
 }
 
-void    print_usage()
+void	clean(t_parsed *to_clean)
 {
-	ft_putstr_fd("help:\n\n", STDERR_FILENO);
-	ft_putstr_fd("Message Digest commands:\n", STDERR_FILENO);
-	ft_putstr_fd("md5\n", STDERR_FILENO);
-	ft_putstr_fd("sha256\n", STDERR_FILENO);
-	ft_putchar_fd('\n', STDERR_FILENO);
+	ft_free_split(to_clean->opt->files);
+	free(to_clean->opt->stdinput);
+	free(to_clean->opt);
+	to_clean->opt = NULL;
 }

@@ -10,13 +10,13 @@ BUILDIR		=	build
 
 SRCS_DIR	=	$(sort $(dir $(wildcard ./src/*/)))
 
-SRCS		=	$(addprefix src/,						\
-										main.c			\
-					$(addprefix core/,	parse.c			\
-										tools.c			\
-										md5.c			\
-						)								\
-					)
+SRCS		=	$(addprefix src/,					\
+											main.c	\
+					$(addprefix core/,		md5.c	\
+											parse.c)\
+					$(addprefix tools/,		print.c	\
+											quit.c)	\
+				)
 
 OBJ			=	$(SRCS:%.c=$(BUILDIR)/%.o)
 

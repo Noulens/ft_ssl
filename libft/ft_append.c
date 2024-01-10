@@ -25,7 +25,6 @@ char    *ft_append(char *old, char *new)
 	ptr = ret;
 	while (oldptr && *oldptr)
 		*ptr++ = *oldptr++;
-	*ptr++ = ' ';
 	while (*new)
 		*ptr++ = *new++;
 	*ptr = 0;
