@@ -121,5 +121,6 @@ void        reverseEndianness(void *data, size_t size);
 int         ft_ld(int nbr);
 char        *ft_ltoa(long nbr);
 void        ft_lstsort(t_list **begin_list, int (*cmp)());
+char        *ft_append(char *old, char *new);
 
 #endif

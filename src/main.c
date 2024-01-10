@@ -6,18 +6,9 @@
 
 int main(int ac, char **av)
 {
-	char        *args = NULL;
-	char        *file_list = NULL;
-	char        **list = NULL;
-	int         options = 0;
+	t_parsed	parser;
 
-	check_args(ac, av, &args, &file_list, &options);
-	printf("here: %s\n", file_list);
-	list = ft_split(file_list, ' ');
-	free(file_list);
-	for (int i = 0; list[i]; i++)
-		printf("%s\n", list[i]);
-	ft_free_split(list);
-	printf("here2: %s\n", args);
-	return (0);
+	parser = parse(ac, av);
+	parser.opt = parser.parse_ptr(ac, av);
+	return (parser.opt);
 }

@@ -12,9 +12,10 @@ SRCS_DIR	=	$(sort $(dir $(wildcard ./src/*/)))
 
 SRCS		=	$(addprefix src/,						\
 										main.c			\
-					$(addprefix files/,	parse.c			\
+					$(addprefix core/,	parse.c			\
 										tools.c			\
-										)				\
+										md5.c			\
+						)								\
 					)
 
 OBJ			=	$(SRCS:%.c=$(BUILDIR)/%.o)

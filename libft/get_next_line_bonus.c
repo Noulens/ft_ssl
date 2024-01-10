@@ -12,7 +12,7 @@
 
 #include "libft.h"
 
-static char	*ft_append(char *old, char *new)
+static char	*ft_fappend(char *old, char *new)
 {
 	int				len;
 	register char	*ptr;
@@ -48,7 +48,7 @@ static char	*ft_read(char *suf, int fd)
 
 	n = 1;
 	p = NULL;
-	p = ft_append(p, suf);
+	p = ft_fappend(p, suf);
 	buffy = (char *)ft_callocb(BUFFER_SIZE + 1, sizeof(char));
 	while (!ft_strchrb(p, '\n') && n)
 	{
@@ -61,7 +61,7 @@ static char	*ft_read(char *suf, int fd)
 			return (free(buffy), p);
 		}
 		buffy[n] = 0;
-		p = ft_append(p, buffy);
+		p = ft_fappend(p, buffy);
 	}
 	free(buffy);
 	return (p);

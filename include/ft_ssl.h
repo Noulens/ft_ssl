@@ -14,25 +14,21 @@
 # include <string.h>
 # include <errno.h>
 # include "libft.h"
+# include "struct.h"
 
 # define MD5_DIGEST_LGTH 16
 
-typedef enum e_opt
-{
-	P = 0b00000001,
-	Q = 0b00000010,
-	R = 0b00000100,
-	S = 0b00001000
-}   t_opt;
+void		*do_md5(void *to_digest, size_t len);
+void		error(char *msg, int error_code, int must_exit);
+int		   	md5parser(int ac, char **av);
+void		print_usage();
+t_parsed	parse(int ac, char **av);
 
-typedef union u_word
+static const t_parsed	g_parsed[] =
 {
-	unsigned int w;
-	unsigned char b[4];
-}   t_word;
-
-void    do_md5(const unsigned char *to_digest, size_t len, unsigned char *result);
-void    error(char *msg, int error_code, int must_exit);
-void    check_args(int ac, char **av, char **stdinput, char **file_list, int *options);
+	{"md5", e_is_hash, 0, md5parser, do_md5},
+	{"sha256", e_is_hash, 0, NULL, do_md5},
+	{0},
+};
 
 #endif //FT_SSL_FT_SSL_H
