@@ -20,14 +20,14 @@
 
 void		*do_md5(void *to_digest, size_t len);
 void		error(char *msg, int error_code, int must_exit);
-int		   	md5parser(int ac, char **av);
+t_opt	   	*md5parser(int ac, char **av);
 void		print_usage();
 t_parsed	parse(int ac, char **av);
 
 static const t_parsed	g_parsed[] =
 {
-	{"md5", e_is_hash, 0, md5parser, do_md5},
-	{"sha256", e_is_hash, 0, NULL, do_md5},
+	{"md5", NULL, e_is_hash, md5parser, do_md5},
+	{"sha256", NULL, e_is_hash, NULL, do_md5},
 	{0},
 };
 

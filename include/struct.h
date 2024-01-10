@@ -5,16 +5,13 @@
 #ifndef FT_SSL_STRUCT_H
 # define FT_SSL_STRUCT_H
 
-typedef int     (*t_func_parse)(int ac, char **av);
-typedef void    *(*t_func_do)(void *, size_t);
-
-typedef enum e_opt
+typedef enum e_flags
 {
 	e_p = 0b00000001,
 	e_q = 0b00000010,
 	e_r = 0b00000100,
 	e_s = 0b00001000
-}   t_opt;
+}   t_flags;
 
 typedef enum e_operation
 {
@@ -34,11 +31,21 @@ typedef union u_dword
 	unsigned char b[8];
 }   t_dword;
 
+typedef struct s_opt
+{
+	int		flags;
+	char	**stdinput;
+	char 	**files;
+}	t_opt;
+
+typedef t_opt	*(*t_func_parse)(int ac, char **av);
+typedef void	*(*t_func_do)(void *, size_t);
+
 typedef struct s_parsed
 {
 	const char      *cmd;
+	t_opt			*opt;
 	t_operation     operation_type;
-	int             opt;
 	t_func_parse    parse_ptr;
 	t_func_do       do_ptr;
 }   t_parsed;

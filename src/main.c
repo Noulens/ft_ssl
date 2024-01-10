@@ -10,5 +10,5 @@ int main(int ac, char **av)
 
 	parser = parse(ac, av);
 	parser.opt = parser.parse_ptr(ac, av);
-	return (parser.opt);
+	return (parser.opt->flags);
 }

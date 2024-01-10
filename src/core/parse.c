@@ -23,17 +23,20 @@ t_parsed	parse(int ac, char **av)
 	exit(1);
 }
 
-int    md5parser(int ac, char **av)
+t_opt	*md5parser(int ac, char **av)
 {
 	size_t	len;
 	char	*stdinput = NULL;
 	char	*file_list = NULL;
 	char    *tmp = NULL;
-	int 	options = 0;
+	t_opt	*opt = NULL;
 
+	opt = (t_opt *)malloc(sizeof(t_opt));
+	if (!opt)
+		error("enomem md5parser", errno, TRUE);
 	av += 2;
-	if (ac < 1)
-		exit (1);
+	if (ac == 2)
+		return (NULL);
 	len = ft_ptrlen((const char **)av);
 	while (len)
 	{
@@ -45,16 +48,16 @@ int    md5parser(int ac, char **av)
 				switch (**av)
 				{
 					case 'p':
-						options |= e_p;
+						opt->flags |= e_p;
 						break;
 					case 'q':
-						options |= e_q;
+						opt->flags |= e_q;
 						break;
 					case 'r':
-						options |= e_r;
+						opt->flags |= e_r;
 						break;
 					case 's':
-						options |= e_s;
+						opt->flags |= e_s;
 						break;
 					default:
 						fprintf(stderr, "ft_ssl: md5: invalid option -- \'%c\'\n", **av);
@@ -87,7 +90,9 @@ int    md5parser(int ac, char **av)
 		}
 		free(tmp);
 	}
-	return (options);
+	opt->stdinput = ft_split(stdinput, ' ');
+	opt->files = ft_split(file_list, ' ');
+	return (opt);
 }
 
 
