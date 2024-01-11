@@ -31,13 +31,21 @@ typedef union u_dword
 	unsigned char b[8];
 }   t_dword;
 
-typedef struct s_opt
+typedef struct s_opt_md5
 {
 	int		flags;
 	char	*stdinput;
 	char 	*str;
 	char 	**files;
-}	t_opt_md5;
+}	t_md5;
+
+typedef struct s_opt_sha256
+{
+	int		flags;
+	char	*stdinput;
+	char 	*str;
+	char 	**files;
+}	t_sha256;
 
 typedef void	*(*t_func_parse)(int ac, char **av);
 typedef void	*(*t_func_do)(void *, size_t);

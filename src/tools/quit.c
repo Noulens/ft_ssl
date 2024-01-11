@@ -25,7 +25,7 @@ void    error(char *msg, int error_code, int must_exit)
 	}
 }
 
-void	clean_opt(t_opt_md5 *to_clean)
+void	clean_opt(t_md5 *to_clean)
 {
 	if (to_clean)
 	{

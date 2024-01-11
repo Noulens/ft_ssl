@@ -23,8 +23,8 @@ void		error(char *msg, int error_code, int must_exit);
 void	   	*md5parser(int ac, char **av);
 void		print_usage();
 t_parsed	parse(int ac, char **av);
-void		clean_opt(t_opt_md5 *to_clean);
-void		print_result(t_opt_md5 opt, char *res);
+void		clean_opt(t_md5 *to_clean);
+void		print_result(t_md5 opt, char *res);
 
 static const t_parsed	g_parsed[] =
 {

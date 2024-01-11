@@ -13,7 +13,7 @@ void    print_usage()
 	ft_putchar_fd('\n', STDERR_FILENO);
 }
 
-void	print_result(t_opt_md5 opt, char *res)
+void	print_result(t_md5 opt, char *res)
 {
 	(void)opt;
 	(void)res;
