@@ -10,8 +10,11 @@ int main(int ac, char **av)
 
 	parser = parse(ac, av);
 	parser.opt = parser.parse_ptr(ac, av);
+	if (parser.opt->str)
+		printf("STR opt: %s\n", parser.opt->str);
 	if (parser.opt->stdinput)
-		printf("%s\n", parser.opt->stdinput);
+		printf("STDIN: %s\n", parser.opt->stdinput);
+	printf("List of files:\n");
 	while (parser.opt->files && *parser.opt->files)
 		printf("%s\n", *parser.opt->files++);
 	clean_opt(parser.opt);

@@ -24,6 +24,7 @@ t_opt	   	*md5parser(int ac, char **av);
 void		print_usage();
 t_parsed	parse(int ac, char **av);
 void		clean_opt(t_opt *to_clean);
+void		print_result(t_opt opt, char *res);
 
 static const t_parsed	g_parsed[] =
 {

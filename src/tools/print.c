@@ -13,8 +13,10 @@ void    print_usage()
 	ft_putchar_fd('\n', STDERR_FILENO);
 }
 
-//void	print_result(t_opt opt, const char *res)
-//{
-//	ft_putstr_fd("(stdin)= ", STDIN_FILENO);
-//	ft_putstr_fd("", STDIN_FILENO);
-//}
+void	print_result(t_opt opt, char *res)
+{
+	(void)opt;
+	(void)res;
+	ft_putstr_fd("(stdin)= ", STDIN_FILENO);
+	ft_putstr_fd(res, STDIN_FILENO);
+}

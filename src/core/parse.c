@@ -12,10 +12,8 @@ t_parsed	parse(int ac, char **av)
 		exit(1);
 	}
 	for (int i = 0; g_parsed[i].cmd; i++)
-	{
 		if (!ft_strcmp(av[1], g_parsed[i].cmd))
 			return (g_parsed[i]);
-	}
 	ft_putstr_fd("Invalid tool: ", STDERR_FILENO);
 	ft_putstr_fd(av[1], STDERR_FILENO);
 	ft_putchar_fd('\n', STDERR_FILENO);
@@ -33,6 +31,15 @@ void read_stdin(char *stdinput, t_opt *opt)
 		free(tmp);
 	}
 	opt->stdinput = stdinput;
+}
+
+void exit_clean_opt_s(char *const *av, t_opt *opt)
+{
+	ft_putstr_fd("ft_ssl: md5: invalid string -- \"", STDERR_FILENO);
+	ft_putstr_fd((*av + 1), STDERR_FILENO);
+	ft_putstr_fd("\"\n", STDERR_FILENO);
+	clean_opt(opt);
+	exit(1);
 }
 
 t_opt	*md5parser(int ac, char **av)
@@ -76,13 +83,7 @@ t_opt	*md5parser(int ac, char **av)
 						break;
 					case 's':
 						if ((*(*av + 1)) != 0 || *(av + 1) == 0)
-						{
-							ft_putstr_fd("ft_ssl: md5: invalid string -- \"", STDERR_FILENO);
-							ft_putstr_fd((*av + 1), STDERR_FILENO);
-							ft_putstr_fd("\"\n", STDERR_FILENO);
-							clean_opt(opt);
-							exit(1);
-						}
+							exit_clean_opt_s(av, opt);
 						else
 						{
 							++av;
@@ -107,9 +108,7 @@ t_opt	*md5parser(int ac, char **av)
 			}
 		}
 		else
-		{
 			break ;
-		}
 		len--;
 		++av;
 	}
