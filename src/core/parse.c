@@ -37,30 +37,31 @@ void read_stdin(char *stdinput, t_opt *opt)
 
 t_opt	*md5parser(int ac, char **av)
 {
-	size_t	len;
+	int		len;
 	char	*stdinput = NULL;
-	char	*file_list = NULL;
 	char    *tmp = NULL;
 	t_opt	*opt = NULL;
 
 	(void)tmp;
 	if (!(opt = (t_opt *)malloc(sizeof(t_opt))))
 		error("md5parser", errno, TRUE);
+	opt->flags = 0;
+	opt->stdinput = NULL;
+	opt->str = NULL;
+	opt->files = NULL;
 	if (ac == 2)
 	{
-		opt->flags = 0;
-		opt->files = NULL;
 		read_stdin(stdinput, opt);
 		return (opt);
 	}
 	av += 2;
 	len = ft_ptrlen((const char **)av);
-	while (len)
+	while (len > 0)
 	{
-		if (**av == '-')
+		if (**av == '-' && !(opt->flags & e_s))
 		{
 			++*av;
-			while (**av)
+			while (*av && **av && !(opt->flags & e_s))
 			{
 				switch (**av)
 				{
@@ -74,15 +75,35 @@ t_opt	*md5parser(int ac, char **av)
 						opt->flags |= e_r;
 						break;
 					case 's':
+						if ((*(*av + 1)) != 0 || *(av + 1) == 0)
+						{
+							ft_putstr_fd("ft_ssl: md5: invalid string -- \"", STDERR_FILENO);
+							ft_putstr_fd((*av + 1), STDERR_FILENO);
+							ft_putstr_fd("\"\n", STDERR_FILENO);
+							clean_opt(opt);
+							exit(1);
+						}
+						else
+						{
+							++av;
+							len--;
+							if (!(opt->str = ft_strdup(*av)))
+							{
+								clean_opt(opt);
+								error("md5parser", errno, TRUE);
+							}
+						}
 						opt->flags |= e_s;
 						break;
 					default:
 						ft_putstr_fd("ft_ssl: md5: invalid option -- \'", STDERR_FILENO);
 						ft_putchar_fd(**av, STDERR_FILENO);
 						ft_putstr_fd("\'\n", STDERR_FILENO);
+						clean_opt(opt);
 						exit(1);
 				}
-				++*av;
+				if (*av && !(opt->flags & e_s))
+					++*av;
 			}
 		}
 		else
@@ -92,24 +113,10 @@ t_opt	*md5parser(int ac, char **av)
 		len--;
 		++av;
 	}
-	while (len--)
-	{
-		char	*p = NULL;
-		while ((p = ft_strchr(*av, ' ')))
-			*p = '_';
-		file_list = ft_append(file_list, *av);
-		if (!file_list)
-			error("check args: ", errno, TRUE);
-		file_list = ft_append(file_list, " ");
-		if (!file_list)
-			error("check args: ", errno, TRUE);
-		++av;
-	}
-	opt->stdinput = NULL;
-//	read_stdin(stdinput, opt);
-	if (!(opt->files = ft_split(file_list, ' ')))
-		error("md5parser", errno, TRUE);
-	free(file_list);
+	if (len > 0)
+		opt->files = av;
+	if ((opt->flags & e_p) || (opt->flags & e_q))
+		read_stdin(stdinput, opt);
 	return (opt);
 }
 

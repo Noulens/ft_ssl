@@ -25,10 +25,15 @@ void    error(char *msg, int error_code, int must_exit)
 	}
 }
 
-void	clean(t_parsed *to_clean)
+void	clean_opt(t_opt *to_clean)
 {
-	ft_free_split(to_clean->opt->files);
-	free(to_clean->opt->stdinput);
-	free(to_clean->opt);
-	to_clean->opt = NULL;
+	if (to_clean)
+	{
+		if (to_clean->stdinput)
+			free(to_clean->stdinput);
+		if (to_clean->str)
+			free(to_clean->str);
+		free(to_clean);
+	}
+	to_clean = NULL;
 }

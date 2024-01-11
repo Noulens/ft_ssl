@@ -35,6 +35,7 @@ typedef struct s_opt
 {
 	int		flags;
 	char	*stdinput;
+	char 	*str;
 	char 	**files;
 }	t_opt;
 

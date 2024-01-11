@@ -12,8 +12,8 @@ int main(int ac, char **av)
 	parser.opt = parser.parse_ptr(ac, av);
 	if (parser.opt->stdinput)
 		printf("%s\n", parser.opt->stdinput);
-	for (int i = 0; parser.opt->files[i]; i++)
-		printf("%s\n", parser.opt->files[i]);
-	clean(&parser);
+	while (parser.opt->files && *parser.opt->files)
+		printf("%s\n", *parser.opt->files++);
+	clean_opt(parser.opt);
 	return (0);
 }
