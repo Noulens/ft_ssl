@@ -21,7 +21,7 @@ t_parsed	parse(int ac, char **av)
 	exit(1);
 }
 
-void read_stdin(char *stdinput, t_opt *opt)
+void read_stdin(char *stdinput, t_opt_md5 *opt)
 {
 	char	*tmp = NULL;
 	while ((tmp = get_next_line(STDIN_FILENO)))
@@ -33,7 +33,7 @@ void read_stdin(char *stdinput, t_opt *opt)
 	opt->stdinput = stdinput;
 }
 
-void exit_clean_opt_s(char *const *av, t_opt *opt)
+void exit_clean_opt_s(char *const *av, t_opt_md5 *opt)
 {
 	ft_putstr_fd("ft_ssl: md5: invalid string -- \"", STDERR_FILENO);
 	ft_putstr_fd((*av + 1), STDERR_FILENO);
@@ -42,15 +42,15 @@ void exit_clean_opt_s(char *const *av, t_opt *opt)
 	exit(1);
 }
 
-t_opt	*md5parser(int ac, char **av)
+void	*md5parser(int ac, char **av)
 {
 	int		len;
 	char	*stdinput = NULL;
 	char    *tmp = NULL;
-	t_opt	*opt = NULL;
+	t_opt_md5	*opt = NULL;
 
 	(void)tmp;
-	if (!(opt = (t_opt *)malloc(sizeof(t_opt))))
+	if (!(opt = (t_opt_md5 *)malloc(sizeof(t_opt_md5))))
 		error("md5parser", errno, TRUE);
 	opt->flags = 0;
 	opt->stdinput = NULL;

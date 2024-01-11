@@ -37,15 +37,15 @@ typedef struct s_opt
 	char	*stdinput;
 	char 	*str;
 	char 	**files;
-}	t_opt;
+}	t_opt_md5;
 
-typedef t_opt	*(*t_func_parse)(int ac, char **av);
+typedef void	*(*t_func_parse)(int ac, char **av);
 typedef void	*(*t_func_do)(void *, size_t);
 
 typedef struct s_parsed
 {
 	const char      *cmd;
-	t_opt			*opt;
+	void			*opt;
 	t_operation     operation_type;
 	t_func_parse    parse_ptr;
 	t_func_do       do_ptr;

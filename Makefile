@@ -13,6 +13,7 @@ SRCS_DIR	=	$(sort $(dir $(wildcard ./src/*/)))
 SRCS		=	$(addprefix src/,					\
 											main.c	\
 					$(addprefix core/,		md5.c	\
+											hash.c	\
 											parse.c)\
 					$(addprefix tools/,		print.c	\
 											quit.c)	\
