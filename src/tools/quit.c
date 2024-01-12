@@ -25,7 +25,20 @@ void    error(char *msg, int error_code, int must_exit)
 	}
 }
 
-void	clean_opt(t_md5 *to_clean)
+void	clean_opt_md5(t_md5 *to_clean)
+{
+	if (to_clean)
+	{
+		if (to_clean->stdinput)
+			free(to_clean->stdinput);
+		if (to_clean->str)
+			free(to_clean->str);
+		free(to_clean);
+	}
+	to_clean = NULL;
+}
+
+void	clean_opt_sha256(t_sha256 *to_clean)
 {
 	if (to_clean)
 	{

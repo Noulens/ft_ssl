@@ -18,18 +18,21 @@
 
 # define MD5_DIGEST_LGTH 16
 
-void		*do_md5(void *to_digest, size_t len);
+void		*do_md5(void *to_digest);
 void		error(char *msg, int error_code, int must_exit);
 void	   	*md5parser(int ac, char **av);
+void		*sha256parser(int ac, char **av);
 void		print_usage();
+void		read_stdin(char **stdinput);
 t_parsed	parse(int ac, char **av);
-void		clean_opt(t_md5 *to_clean);
+void		clean_opt_md5(t_md5 *to_clean);
+void		clean_opt_sha256(t_sha256 *to_clean);
 void		print_result(t_md5 opt, char *res);
 
 static const t_parsed	g_parsed[] =
 {
 	{"md5", NULL, e_is_hash, md5parser, do_md5},
-	{"sha256", NULL, e_is_hash, NULL, do_md5},
+	{"sha256", NULL, e_is_hash, sha256parser, do_md5},
 	{0},
 };
 

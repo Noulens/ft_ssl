@@ -48,7 +48,7 @@ typedef struct s_opt_sha256
 }	t_sha256;
 
 typedef void	*(*t_func_parse)(int ac, char **av);
-typedef void	*(*t_func_do)(void *, size_t);
+typedef void	*(*t_func_do)(void *);
 
 typedef struct s_parsed
 {
