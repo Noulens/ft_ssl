@@ -5,12 +5,27 @@
 #ifndef FT_SSL_STRUCT_H
 # define FT_SSL_STRUCT_H
 
+typedef uint32_t	word;
+typedef uint8_t		byte;
+typedef uint64_t	dword;
+typedef uint16_t	dbyte;
+
+# define MD5_DIGEST_LGTH 16
+
+typedef union u_check_endian
+{
+	unsigned long     i;
+	char    bytes[4];
+}   t_check_endian;
+
 typedef enum e_flags
 {
 	e_p = 0b00000001,
 	e_q = 0b00000010,
 	e_r = 0b00000100,
-	e_s = 0b00001000
+	e_s = 0b00001000,
+	e_one_op = 0b00010000,
+	e_little = 0b00100000
 }   t_flags;
 
 typedef enum e_operation
@@ -21,13 +36,13 @@ typedef enum e_operation
 
 typedef union u_word
 {
-	unsigned int w;
+	uint32_t w;
 	unsigned char b[4];
 }   t_word;
 
 typedef union u_dword
 {
-	unsigned long dw;
+	uint64_t dw;
 	unsigned char b[8];
 }   t_dword;
 
@@ -38,6 +53,14 @@ typedef struct s_opt_md5
 	char 	*str;
 	char 	**files;
 }	t_md5;
+
+typedef struct s_md5ctx
+{
+	uint64_t	size;        // Size of input in bytes
+	uint32_t	buffer[4];   // Current accumulation of hash
+	uint8_t		input[64];    // Input to be used in the next step
+	uint8_t		digest[MD5_DIGEST_LGTH];   // Result of algorithm
+}	t_MD5Context;
 
 typedef struct s_opt_sha256
 {

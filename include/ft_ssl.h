@@ -16,9 +16,8 @@
 # include "libft.h"
 # include "struct.h"
 
-# define MD5_DIGEST_LGTH 16
-
 void		*do_md5(void *to_digest);
+void		*do_sha256(void *to_digest);
 void		error(char *msg, int error_code, int must_exit);
 void	   	*md5parser(int ac, char **av);
 void		*sha256parser(int ac, char **av);
@@ -27,12 +26,29 @@ void		read_stdin(char **stdinput);
 t_parsed	parse(int ac, char **av);
 void		clean_opt_md5(t_md5 *to_clean);
 void		clean_opt_sha256(t_sha256 *to_clean);
-void		print_result(t_md5 opt, char *res);
+void		print_result_md5(t_md5 *opt, char *res);
+uint32_t	readWord(uint32_t data, int opt);
+uint64_t	readXWord(uint64_t data, int opt);
+void		reverseEndiannessArray32(uint32_t *array, size_t size);
+void		reverseEndiannessArray64(uint64_t *array, size_t size);
+/*
+ * md5 functions
+ */
+uint32_t	F(t_word X, t_word Y, t_word Z);
+uint32_t	G(t_word X, t_word Y, t_word Z);
+uint32_t	H(t_word X, t_word Y, t_word Z);
+uint32_t	I(t_word X, t_word Y, t_word Z);
+uint32_t	rotateLeft(uint32_t x, uint32_t n);
+void		initialize_ABCD(t_word *A, t_word *B, t_word *C, t_word *D);
+char		*md5(char *s, int flags);
 
+/*
+ * global variable for toolbox
+ */
 static const t_parsed	g_parsed[] =
 {
 	{"md5", NULL, e_is_hash, md5parser, do_md5},
-	{"sha256", NULL, e_is_hash, sha256parser, do_md5},
+	{"sha256", NULL, e_is_hash, sha256parser, do_sha256},
 	{0},
 };
 

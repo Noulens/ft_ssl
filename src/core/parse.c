@@ -4,7 +4,7 @@
 
 #include "ft_ssl.h"
 
-t_parsed	parse(int ac, char **av)
+t_parsed parse(int ac, char **av)
 {
 	if (ac < 2)
 	{
@@ -21,9 +21,9 @@ t_parsed	parse(int ac, char **av)
 	exit(1);
 }
 
-void	read_stdin(char **stdinput)
+void read_stdin(char **stdinput)
 {
-	char	*tmp = NULL;
+	char *tmp = NULL;
 	while ((tmp = get_next_line(STDIN_FILENO)))
 	{
 		if (!(*stdinput = ft_append(*stdinput, tmp)))
@@ -32,24 +32,34 @@ void	read_stdin(char **stdinput)
 	}
 }
 
-void	*md5parser(int ac, char **av)
+void *md5parser(int ac, char **av)
 {
-	int		len;
-	t_md5	*opt = NULL;
+	int				len;
+	t_md5			*opt = NULL;
+	t_check_endian	data;
 
-	if (!(opt = (t_md5 *)malloc(sizeof(t_md5))))
+	if (!(opt = (t_md5 *) malloc(sizeof(t_md5))))
 		error("md5parser", errno, TRUE);
+	data.i = 0x01020304;
+	if (data.bytes[0] == 0x04)
+		opt->flags |= e_little;
+	else
+	{
+		ft_fprintf(2, "ft_nm: init_args: Unknown endianness\n");
+		error("Unkown endianness", -1, TRUE);
+	}
 	opt->flags = 0;
 	opt->stdinput = NULL;
 	opt->str = NULL;
 	opt->files = NULL;
 	if (ac == 2)
 	{
+		opt->flags |= e_one_op;
 		read_stdin(&opt->stdinput);
 		return (opt);
 	}
 	av += 2;
-	len = ft_ptrlen((const char **)av);
+	len = ft_ptrlen((const char **) av);
 	while (len > 0)
 	{
 		if (**av == '-' && !(opt->flags & e_s))
@@ -76,8 +86,7 @@ void	*md5parser(int ac, char **av)
 							ft_putstr_fd("\"\n", STDERR_FILENO);
 							clean_opt_md5(opt);
 							exit(1);
-						}
-						else
+						} else
 						{
 							++av;
 							len--;
@@ -99,9 +108,8 @@ void	*md5parser(int ac, char **av)
 				if (*av && !(opt->flags & e_s))
 					++*av;
 			}
-		}
-		else
-			break ;
+		} else
+			break;
 		len--;
 		++av;
 	}
@@ -112,12 +120,12 @@ void	*md5parser(int ac, char **av)
 	return (opt);
 }
 
-void	*sha256parser(int ac, char **av)
+void *sha256parser(int ac, char **av)
 {
 	int			len;
 	t_sha256	*opt = NULL;
 
-	if (!(opt = (t_sha256 *)malloc(sizeof(t_sha256))))
+	if (!(opt = (t_sha256 *) malloc(sizeof(t_sha256))))
 		error("sha256parser", errno, TRUE);
 	opt->flags = 0;
 	opt->stdinput = NULL;
@@ -125,11 +133,12 @@ void	*sha256parser(int ac, char **av)
 	opt->files = NULL;
 	if (ac == 2)
 	{
+		opt->flags |= e_one_op;
 		read_stdin(&opt->stdinput);
 		return (opt);
 	}
 	av += 2;
-	len = ft_ptrlen((const char **)av);
+	len = ft_ptrlen((const char **) av);
 	while (len > 0)
 	{
 		if (**av == '-' && !(opt->flags & e_s))
@@ -156,8 +165,7 @@ void	*sha256parser(int ac, char **av)
 							ft_putstr_fd("\"\n", STDERR_FILENO);
 							clean_opt_sha256(opt);
 							exit(1);
-						}
-						else
+						} else
 						{
 							++av;
 							len--;
@@ -179,9 +187,8 @@ void	*sha256parser(int ac, char **av)
 				if (*av && !(opt->flags & e_s))
 					++*av;
 			}
-		}
-		else
-			break ;
+		} else
+			break;
 		len--;
 		++av;
 	}

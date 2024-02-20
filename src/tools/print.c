@@ -6,17 +6,16 @@
 
 void    print_usage()
 {
-	ft_putstr_fd("help:\n\n", STDERR_FILENO);
-	ft_putstr_fd("Message Digest commands:\n", STDERR_FILENO);
-	ft_putstr_fd("md5\n", STDERR_FILENO);
-	ft_putstr_fd("sha256\n", STDERR_FILENO);
-	ft_putchar_fd('\n', STDERR_FILENO);
+	ft_putstr_fd("help:\n\n", 2);
+	ft_putstr_fd("Message Digest commands:\n", 2);
+	ft_putstr_fd("md5\n", 2);
+	ft_putstr_fd("sha256\n", 2);
+	ft_putchar_fd('\n', 2);
 }
 
-void	print_result(t_md5 opt, char *res)
+void	print_result_md5(t_md5 *opt, char *res)
 {
 	(void)opt;
-	(void)res;
-	ft_putstr_fd("(stdin)= ", STDIN_FILENO);
-	ft_putstr_fd(res, STDIN_FILENO);
+	ft_putstr_fd("(stdin)= ", 1);
+	ft_putstr_fd(res, 1);
 }
