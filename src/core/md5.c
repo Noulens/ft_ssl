@@ -57,8 +57,6 @@ void	MD5ctx_init(t_MD5Context *ctx)
 char *md5(char *s, int flags)
 {
 	t_MD5Context	ctx = {0};
-	uint32_t		chunk[MD5_DIGEST_LGTH];
-	(void)chunk;
 
 	if (!(flags & e_little))
 	{
@@ -67,6 +65,7 @@ char *md5(char *s, int flags)
 	}
 	MD5ctx_init(&ctx);
 	uint64_t len = ft_strlen(s);
+	//TODO
 	printf("LEN: %lu\n", len);
 	// We want the number of bits of the string + 512 as a base to know the next multiple of 512
 	size_t bits = len * 8 + 512;
@@ -74,6 +73,7 @@ char *md5(char *s, int flags)
 	// then we subtract len * 8 - 64 to have the next value congruent to 448 modulo 512
 	// this gives the number of bits to add to have a length 64 bits short of 512
 	size_t bits_to_add = ((bits + 511) - ((bits + 511) % 512)) - len * 8 - 64;
+	//TODO
 	ft_printf("Mod: %d\n", bits_to_add);
 	uint8_t *full_message = (uint8_t *)malloc(len + bits_to_add / 8 + sizeof(uint64_t) + 1);
 	if (!full_message)
@@ -84,8 +84,8 @@ char *md5(char *s, int flags)
 	full_message[len + bits_to_add / 8 + 8] = 0;
 	ft_memcpy(full_message, s, len);
 	ft_memcpy(full_message + len, PADDING, bits_to_add / 8);
-	/*if (!(flags & e_little))
-		reverseEndianness((uint8_t *)&len, sizeof(uint64_t));*/
+	if (!(flags & e_little))
+		reverseEndiannessArray64(&len, 1);
 	ft_memcpy(full_message + len + bits_to_add / 8, (uint8_t *)&len, sizeof(uint64_t));
 //	ft_printf("%s\n", full_message);
 	// this to check that the final message has the len at the end:
@@ -97,7 +97,17 @@ char *md5(char *s, int flags)
 	printf("Appended len: %lu, total len %% 512 = %lu\n", bob, (len * 8 + bits_to_add + 64) % 512);
 	free(full_message);
 	full_message = NULL;*/
-
+//	printf("%s\n", full_message);
+	uint32_t		chunk[MD5_DIGEST_LGTH];
+	ft_memset(chunk, 0x0, sizeof(chunk));
+	for (size_t j = 0; j < MD5_DIGEST_LGTH; j++)
+	{
+		chunk[j] |= (uint8_t)full_message[j * 4] | (full_message[j * 4 + 1] << 8) | (full_message[j * 4 + 2] << 16) | (full_message[j * 4 + 3] << 24);
+		printf("0x%x\n", chunk[j]);
+	}
+	if (!(flags & e_little))
+		reverseEndiannessArray32(chunk, MD5_DIGEST_LGTH);
+	
 	return ("ok\n");
 }
 

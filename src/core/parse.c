@@ -40,6 +40,7 @@ void *md5parser(int ac, char **av)
 
 	if (!(opt = (t_md5 *) malloc(sizeof(t_md5))))
 		error("md5parser", errno, TRUE);
+	opt->flags = 0;
 	data.i = 0x01020304;
 	if (data.bytes[0] == 0x04)
 		opt->flags |= e_little;
@@ -48,7 +49,6 @@ void *md5parser(int ac, char **av)
 		ft_fprintf(2, "ft_nm: init_args: Unknown endianness\n");
 		error("Unkown endianness", -1, TRUE);
 	}
-	opt->flags = 0;
 	opt->stdinput = NULL;
 	opt->str = NULL;
 	opt->files = NULL;
