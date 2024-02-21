@@ -57,6 +57,8 @@ void	MD5ctx_init(t_MD5Context *ctx)
 char *md5(char *s, int flags)
 {
 	t_MD5Context	ctx = {0};
+	uint32_t		chunk[MD5_DIGEST_LGTH];
+	(void)chunk;
 
 	if (!(flags & e_little))
 	{
@@ -65,6 +67,7 @@ char *md5(char *s, int flags)
 	}
 	MD5ctx_init(&ctx);
 	uint64_t len = ft_strlen(s);
+	printf("LEN: %lu\n", len);
 	// We want the number of bits of the string + 512 as a base to know the next multiple of 512
 	size_t bits = len * 8 + 512;
 	// to know the next X multiple after n: (n + (X - 1)) - ((n + (X - 1)) % X)
@@ -72,25 +75,29 @@ char *md5(char *s, int flags)
 	// this gives the number of bits to add to have a length 64 bits short of 512
 	size_t bits_to_add = ((bits + 511) - ((bits + 511) % 512)) - len * 8 - 64;
 	ft_printf("Mod: %d\n", bits_to_add);
-	uint8_t *full_message = (uint8_t *)malloc(len + 1 + bits_to_add / 8);
+	uint8_t *full_message = (uint8_t *)malloc(len + bits_to_add / 8 + sizeof(uint64_t) + 1);
 	if (!full_message)
 	{
 		error("md5 func", errno, FALSE);
 		return (NULL);
 	}
-	full_message[len + 1 + bits_to_add / 8] = 0;
+	full_message[len + bits_to_add / 8 + 8] = 0;
 	ft_memcpy(full_message, s, len);
 	ft_memcpy(full_message + len, PADDING, bits_to_add / 8);
-	ft_memcpy(full_message + len + bits_to_add / 8, (uint8_t *)&len, 8);
+	/*if (!(flags & e_little))
+		reverseEndianness((uint8_t *)&len, sizeof(uint64_t));*/
+	ft_memcpy(full_message + len + bits_to_add / 8, (uint8_t *)&len, sizeof(uint64_t));
 //	ft_printf("%s\n", full_message);
 	// this to check that the final message has the len at the end:
 /*	uint64_t bob = 0;
-	for (size_t i = len + bits_to_add / 8; i < len + bits_to_add / 8 + 8; i++)
+	for (size_t i = len + bits_to_add / 8; i < len + bits_to_add / 8 + sizeof(uint64_t); i++)
 	{
 		bob |= full_message[i];
 	}
-	printf("Appended len: %lu, total len %% 512 = %lu\n", bob, (len * 8 + bits_to_add + 64) % 512);*/
-	
+	printf("Appended len: %lu, total len %% 512 = %lu\n", bob, (len * 8 + bits_to_add + 64) % 512);
+	free(full_message);
+	full_message = NULL;*/
+
 	return ("ok\n");
 }
 
