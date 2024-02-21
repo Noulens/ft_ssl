@@ -57,6 +57,7 @@ void	MD5ctx_init(t_MD5Context *ctx)
 char *md5(char *s, int flags)
 {
 	t_MD5Context	ctx = {0};
+	uint32_t		chunk[MD5_DIGEST_LGTH];
 
 	if (!(flags & e_little))
 	{
@@ -87,27 +88,20 @@ char *md5(char *s, int flags)
 	if (!(flags & e_little))
 		reverseEndiannessArray64(&len, 1);
 	ft_memcpy(full_message + len + bits_to_add / 8, (uint8_t *)&len, sizeof(uint64_t));
-//	ft_printf("%s\n", full_message);
-	// this to check that the final message has the len at the end:
-/*	uint64_t bob = 0;
-	for (size_t i = len + bits_to_add / 8; i < len + bits_to_add / 8 + sizeof(uint64_t); i++)
+//	printf("TEST %lu\n", (len + bits_to_add / 8 + 8)%16);
+	for (size_t i = 0; i < len + bits_to_add / 8 + 8; i+= 16)
 	{
-		bob |= full_message[i];
+		uint8_t *ptr = full_message + i;
+		ft_memset(chunk, 0x0, sizeof(chunk));
+		for (size_t j = 0; j < MD5_DIGEST_LGTH; j++)
+			chunk[j] |= ptr[j * 4]
+						| (ptr[j * 4 + 1] << 8)
+						| (ptr[j * 4 + 2] << 16)
+						| (ptr[j * 4 + 3] << 24);
+		if (!(flags & e_little))
+			reverseEndiannessArray32(chunk, MD5_DIGEST_LGTH);
 	}
-	printf("Appended len: %lu, total len %% 512 = %lu\n", bob, (len * 8 + bits_to_add + 64) % 512);
 	free(full_message);
-	full_message = NULL;*/
-//	printf("%s\n", full_message);
-	uint32_t		chunk[MD5_DIGEST_LGTH];
-	ft_memset(chunk, 0x0, sizeof(chunk));
-	for (size_t j = 0; j < MD5_DIGEST_LGTH; j++)
-	{
-		chunk[j] |= (uint8_t)full_message[j * 4] | (full_message[j * 4 + 1] << 8) | (full_message[j * 4 + 2] << 16) | (full_message[j * 4 + 3] << 24);
-		printf("0x%x\n", chunk[j]);
-	}
-	if (!(flags & e_little))
-		reverseEndiannessArray32(chunk, MD5_DIGEST_LGTH);
-	
 	return ("ok\n");
 }
 
