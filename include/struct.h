@@ -34,12 +34,6 @@ typedef enum e_operation
 	e_is_hash = 0b00000001
 }   t_operation;
 
-typedef union u_word
-{
-	uint32_t w;
-	unsigned char b[4];
-}   t_word;
-
 typedef union u_dword
 {
 	uint64_t dw;

@@ -34,12 +34,12 @@ void		reverseEndiannessArray64(uint64_t *array, size_t size);
 /*
  * md5 functions
  */
-uint32_t	F(t_word X, t_word Y, t_word Z);
-uint32_t	G(t_word X, t_word Y, t_word Z);
-uint32_t	H(t_word X, t_word Y, t_word Z);
-uint32_t	I(t_word X, t_word Y, t_word Z);
+uint32_t	F(uint32_t X, uint32_t Y, uint32_t Z);
+uint32_t	G(uint32_t X, uint32_t Y, uint32_t Z);
+uint32_t	H(uint32_t X, uint32_t Y, uint32_t Z);
+uint32_t	I(uint32_t X, uint32_t Y, uint32_t Z);
 uint32_t	rotateLeft(uint32_t x, uint32_t n);
-void		initialize_ABCD(t_word *A, t_word *B, t_word *C, t_word *D);
+void		initialize_ABCD(uint32_t *A, uint32_t *B, uint32_t *C, uint32_t *D);
 char		*md5(char *s, int flags);
 
 /*

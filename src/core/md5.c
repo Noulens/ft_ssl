@@ -9,13 +9,13 @@ static uint32_t ABCD[4] =
 	0x67452301, 0xefcdab89, 0x98badcfe, 0x10325476
 };
 
-/*static uint32_t	S[64] =
+static uint32_t	S[64] =
 {
 	7, 12, 17, 22, 7, 12, 17, 22, 7, 12, 17, 22, 7, 12, 17, 22,
 	5,  9, 14, 20, 5,  9, 14, 20, 5,  9, 14, 20, 5,  9, 14, 20,
 	4, 11, 16, 23, 4, 11, 16, 23, 4, 11, 16, 23, 4, 11, 16, 23,
 	6, 10, 15, 21, 6, 10, 15, 21, 6, 10, 15, 21, 6, 10, 15, 21
-};*/
+};
 
 static uint32_t	K[64] =
 {
@@ -62,6 +62,7 @@ char *md5(char *s, int flags)
 	if (!(flags & e_little))
 	{
 		reverseEndiannessArray32(K, 64);
+		reverseEndiannessArray32(S, 64);
 		reverseEndiannessArray32(ABCD, 4);
 	}
 	MD5ctx_init(&ctx);
@@ -105,24 +106,24 @@ char *md5(char *s, int flags)
 	return ("ok\n");
 }
 
-uint32_t	F(t_word X, t_word Y, t_word Z)
+uint32_t	F(uint32_t X, uint32_t Y, uint32_t Z)
 {
-	return ((X.w & Y.w) | (~X.w & Z.w));
+	return ((X & Y) | (~X & Z));
 }
 
-uint32_t	G(t_word X, t_word Y, t_word Z)
+uint32_t	G(uint32_t X, uint32_t Y, uint32_t Z)
 {
-	return ((X.w & Z.w) | (Y.w & ~Z.w));
+	return ((X & Z) | (Y & ~Z));
 }
 
-uint32_t	H(t_word X, t_word Y, t_word Z)
+uint32_t	H(uint32_t X, uint32_t Y, uint32_t Z)
 {
-	return (X.w ^ Y.w ^ Z.w);
+	return (X ^ Y ^ Z);
 }
 
-uint32_t	I(t_word X, t_word Y, t_word Z)
+uint32_t	I(uint32_t X, uint32_t Y, uint32_t Z)
 {
-	return (Y.w ^ (X.w | ~Z.w));
+	return (Y ^ (X | ~Z));
 }
 
 /*
