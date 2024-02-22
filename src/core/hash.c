@@ -16,6 +16,11 @@ void    *do_md5(void *data)
 		return ("success one op");
 	}
 	if (to_digest->str)
+	{
+		md5(to_digest->str, to_digest->flags);
+		print_result_md5(to_digest, res);
+		return ("success -s op");
+	}
 		printf("STR opt: %s\n", to_digest->str);
 	if (to_digest->stdinput)
 		printf("STDIN: %s\n", to_digest->stdinput);
