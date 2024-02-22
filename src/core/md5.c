@@ -112,9 +112,8 @@ char *md5(char *s, int flags)
 	// we loop on the full message and increment by 64 bytes
 	printf("msg len %lu\n", len + bits_to_add / 8 + sizeof(uint64_t));
 //	uint64_t bob = 0;
-//	for (size_t i = len + bits_to_add / 8; i < len + bits_to_add / 8 + sizeof(uint64_t); i++)
-//	{
-//		bob |= full_message[i];
+//	for (size_t i = 0; i < sizeof(uint64_t); i++) {
+//		bob |= (uint64_t)full_message[len + bits_to_add / 8 + i] << (i * 8);
 //	}
 //	printf("Appended len: %lu, total len %% 512 = %lu\n", bob, (len * 8 + bits_to_add + 64) % 512);
 	for (size_t i = 0; i < len + bits_to_add / 8 + sizeof(uint64_t); i += 64)
