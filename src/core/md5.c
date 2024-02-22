@@ -47,17 +47,18 @@ static uint8_t PADDING[64] =
 void	MD5ctx_init(t_MD5Context *ctx)
 {
 	ctx->size = 0x0;
-	ctx->buffer[0] = ABCD[0];
-	ctx->buffer[1] = ABCD[1];
-	ctx->buffer[2] = ABCD[2];
-	ctx->buffer[3] = ABCD[3];
+	ctx->buffer[A] = ABCD[A];
+	ctx->buffer[B] = ABCD[B];
+	ctx->buffer[C] = ABCD[C];
+	ctx->buffer[D] = ABCD[D];
 	ft_bzero(ctx->buffer, 64);
 }
 
 char *md5(char *s, int flags)
 {
 	t_MD5Context	ctx = {0};
-	uint32_t		chunk[MD5_DIGEST_LGTH];
+	uint32_t		chunk[16];
+	uint8_t			*offset = NULL;
 
 	if (!(flags & e_little))
 	{
@@ -65,11 +66,10 @@ char *md5(char *s, int flags)
 		reverseEndiannessArray32(S, 64);
 		reverseEndiannessArray32(ABCD, 4);
 	}
-	MD5ctx_init(&ctx);
 	uint64_t len = ft_strlen(s);
 	//TODO
 	printf("LEN: %lu\n", len);
-	// We want the number of bits of the string + 512 as a base to know the next multiple of 512
+	// We want the number of bits of the string + 512 as a base to know the next multiple of 512 and not the current
 	size_t bits = len * 8 + 512;
 	// to know the next X multiple after n: (n + (X - 1)) - ((n + (X - 1)) % X)
 	// then we subtract len * 8 - 64 to have the next value congruent to 448 modulo 512
@@ -90,19 +90,34 @@ char *md5(char *s, int flags)
 		reverseEndiannessArray64(&len, 1);
 	ft_memcpy(full_message + len + bits_to_add / 8, (uint8_t *)&len, sizeof(uint64_t));
 //	printf("TEST %lu\n", (len + bits_to_add / 8 + 8)%16);
-	for (size_t i = 0; i < len + bits_to_add / 8 + 8; i+= 16)
+	MD5ctx_init(&ctx);
+	// we loop on the full message and increment by 64 bytes
+	for (size_t i = 0; i < len + bits_to_add / 8 + sizeof(uint64_t); i+= 64)
 	{
-		uint8_t *ptr = full_message + i;
+		// we offset the message
+		offset = full_message + i;
+		// now we have to split into sixteen 32-bit “words” the message of 512 bits
 		ft_memset(chunk, 0x0, sizeof(chunk));
-		for (size_t j = 0; j < MD5_DIGEST_LGTH; j++)
-			chunk[j] |= ptr[j * 4]
-						| (ptr[j * 4 + 1] << 8)
-						| (ptr[j * 4 + 2] << 16)
-						| (ptr[j * 4 + 3] << 24);
+		for (size_t j = 0; j < 16; j++)
+			chunk[j] |= offset[j * 4]
+				| (offset[j * 4 + 1] << 8)
+				| (offset[j * 4 + 2] << 16)
+				| (offset[j * 4 + 3] << 24);
 		if (!(flags & e_little))
-			reverseEndiannessArray32(chunk, MD5_DIGEST_LGTH);
+			reverseEndiannessArray32(chunk, 16);
+		// now we proceed to the rounds
+		uint32_t E;
+		/* Save A as AA, B as BB, C as CC, and D as DD. */
+		uint32_t AA = ctx.buffer[A];
+		uint32_t BB = ctx.buffer[B];
+		uint32_t CC = ctx.buffer[C];
+		uint32_t DD = ctx.buffer[D];
+		// round 1
+		E = readWord(F(BB, CC, DD), flags);
 	}
 	free(full_message);
+	full_message = NULL;
+	offset = NULL;
 	return ("ok\n");
 }
 

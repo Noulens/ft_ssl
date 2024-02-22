@@ -18,6 +18,14 @@ typedef union u_check_endian
 	char    bytes[4];
 }   t_check_endian;
 
+typedef enum u_initialization_vector
+{
+	A = 0,
+	B = 1,
+	C = 2,
+	D = 3
+}	t_iv;
+
 typedef enum e_flags
 {
 	e_p = 0b00000001,

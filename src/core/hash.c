@@ -11,8 +11,6 @@ void    *do_md5(void *data)
 
 	if (to_digest->flags & e_one_op)
 	{
-		// TODO: remove this printf
-		ft_printf("%s\n", to_digest->stdinput);
 		md5(to_digest->stdinput, to_digest->flags);
 		print_result_md5(to_digest, res);
 		return ("success one op");
