@@ -1,3 +1,6 @@
+# clion stuff
+/.idea
+
 # Prerequisites
 *.d
 *.txt
