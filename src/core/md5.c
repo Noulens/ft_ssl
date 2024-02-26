@@ -77,7 +77,8 @@ void print_full_message(uint8_t *full, size_t len)
 
 void rotate_buffers(t_MD5Context *ctx)
 {
-	uint32_t tmp = 0;
+	uint32_t	tmp = 0;
+
 	tmp = (*ctx).buffer[D];
 	for (int rotb = 3; rotb > 0; rotb--)
 		(*ctx).buffer[rotb] = (*ctx).buffer[rotb - 1];
@@ -241,13 +242,13 @@ uint32_t I(uint32_t X, uint32_t Y, uint32_t Z)
  * Rotates a 32-bit word left by n bits
  */
 
-uint32_t rotateLeft( uint32_t v, uint32_t amt )
-{
-	unsigned  msk1 = (1<<amt) -1;
-	return ((v>>(32-amt)) & msk1) | ((v<<amt) & ~msk1);
-}
-
-//uint32_t rotateLeft(uint32_t x, uint32_t n)
+//uint32_t rotateLeft( uint32_t v, uint32_t amt )
 //{
-//	return (x << n) | (x >> (32 - n));
+//	unsigned  msk1 = (1<<amt) -1;
+//	return ((v>>(32-amt)) & msk1) | ((v<<amt) & ~msk1);
 //}
+
+uint32_t rotateLeft(uint32_t x, uint32_t n)
+{
+	return (x << n) | (x >> (32 - n));
+}
