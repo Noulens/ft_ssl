@@ -71,16 +71,17 @@ void	bit_printer(uint8_t c)
 
 void print_full_message(uint8_t *full, size_t len)
 {
-	size_t i = 0;
-	uint8_t *ptr = full;
+	size_t		i = 0;
+	uint8_t		*ptr = full;
+
 	while (i < len)
 	{
 		bit_printer(ptr[i]);
-		if (i != 0 && i % 8 == 0)
-			ft_putchar_fd(' ', 1);
-		if ((i * 32) % 32 == 0)
-			ft_putchar_fd('\n', 1);
 		i++;
+		if (i % 4 == 0)
+			ft_putchar_fd('\n', 1);
+		else
+			ft_putchar_fd(' ', 1);
 	}
 }
 
@@ -105,10 +106,10 @@ char *md5(char *s, int flags)
 		reverseEndiannessArray32(ABCD, 4);
 	}
 	MD5ctx_init(&ctx);
-	printf("test rotate %x %x %x %x\n", ctx.buffer[A], ctx.buffer[B], ctx.buffer[C], ctx.buffer[D]);
+//	printf("test rotate %x %x %x %x\n", ctx.buffer[A], ctx.buffer[B], ctx.buffer[C], ctx.buffer[D]);
 	ctx.size = ft_strlen(s);
 	//TODO
-	printf("LEN: %lu\n", ctx.size);
+//	printf("LEN: %lu\n", ctx.size);
 	size_t bits = ctx.size * 8;
 	// to know the next X multiple after n: (n + (X - 1)) - ((n + (X - 1)) % X)
 	size_t bits_to_add;
@@ -117,13 +118,20 @@ char *md5(char *s, int flags)
 	else
 	{
 		bits_to_add = ((bits + 511) - ((bits + 511) % 512)) - ctx.size * 8;
+//		ft_printf("BITS to add 1: %d\n", bits_to_add);
 		if (bits_to_add % 512 == 0)
 			bits_to_add = 448;
 		else
-			bits_to_add = bits_to_add - 64;
+		{
+			if (bits_to_add <= 64)
+				bits_to_add = 448 + bits_to_add;
+			else
+				bits_to_add = bits_to_add - 64;
+//			ft_printf("BITS to add 2: %d\n", bits_to_add);
+		}
 	}
 	//TODO
-	ft_printf("to add: %d\n", bits_to_add);
+//	ft_printf("to add: %d\n", bits_to_add);
 	uint8_t *full_message = (uint8_t *) malloc(
 			ctx.size + bits_to_add / 8 + sizeof(uint64_t) + 1);
 	if (!full_message)
@@ -137,7 +145,7 @@ char *md5(char *s, int flags)
 	if (!(flags & e_little))
 		reverseEndiannessArray64(&ctx.size, 1);
 	// we loop on the full message and increment by 64 bytes
-	printf("msg len %lu\n", ctx.size + bits_to_add / 8 + sizeof(uint64_t));
+//	printf("msg len %lu\n", ctx.size + bits_to_add / 8 + sizeof(uint64_t));
 	// I i have a full message of 512 bits
 	for (size_t i = 0; i < ctx.size + bits_to_add / 8 + sizeof(uint64_t); i += 64)
 	{
@@ -156,16 +164,16 @@ char *md5(char *s, int flags)
 		if (i == ctx.size + bits_to_add / 8 + sizeof(uint64_t) - 64)
 		{
 			X[14] = (uint32_t)(ctx.size * 8);
-			X[15] = (uint32_t)(ctx.size >> 29); // Right shift by 29 bits to get the upper 32 bits
+			X[15] = (uint32_t)(ctx.size >> 32); // Right shift by 32 bits to get the upper 32 bits
 
-			uint64_t bob = 0;
-			bob |= (uint64_t)X[15] << 32; // Shift the upper 32 bits by 32 positions
-			bob |= X[14]; // Combine with the lower 32 bits
-			print_full_message(full_message, ctx.size + bits_to_add / 8 + sizeof(uint64_t));
-			printf("Appended len: %lu, total len %% 512 = %lu\n", bob, (ctx.size * 8 + bits_to_add + 64) % 512);
+//			uint64_t bob = 0;
+//			bob |= (uint64_t)X[15] << 32; // Shift the upper 32 bits by 32 positions
+//			bob |= X[14]; // Combine with the lower 32 bits
+//			print_full_message(full_message, ctx.size + bits_to_add / 8 + sizeof(uint64_t));
+//			printf("Appended len: %lu, total len %% 512 = %lu\n", bob, (ctx.size * 8 + bits_to_add + 64) % 512);
 		}
 		// we start the loop
-		printf("Block of 512 #%lu %x %x %x %x\n", i, ctx.buffer[A], ctx.buffer[B], ctx.buffer[C], ctx.buffer[D]);
+//		printf("Block of 512 #%lu %x %x %x %x\n", i, ctx.buffer[A], ctx.buffer[B], ctx.buffer[C], ctx.buffer[D]);
 //		for (size_t k = 0; k < 16; k++)
 //		{
 			// now we proceed to the rounds
@@ -226,7 +234,6 @@ char *md5(char *s, int flags)
 		ctx.digest[(i * 4) + 2] = (uint8_t)((ctx.buffer[i] & 0x00FF0000) >> 16);
 		ctx.digest[(i * 4) + 3] = (uint8_t)((ctx.buffer[i] & 0xFF000000) >> 24);
 	}
-	printf("RES:\n");
 	for(unsigned int i = 0; i < 16; ++i)
 	{
 		printf("%02x", ctx.digest[i]);
@@ -235,6 +242,7 @@ char *md5(char *s, int flags)
 	free(full_message);
 	full_message = NULL;
 	offset = NULL;
+
 	return ("ok\n");
 }
 
