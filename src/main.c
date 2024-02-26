@@ -10,8 +10,6 @@ int main(int ac, char **av)
 
 	parser = parse(ac, av);
 	parser.opt = parser.parse_ptr(ac, av);
-	const char *res = (const char *)parser.do_ptr((void *)parser.opt);
-	printf("%s\n", res);
-	clean_opt_md5(((t_md5 *) parser.opt));
+	parser.do_ptr((void *)parser.opt);
 	return (0);
 }

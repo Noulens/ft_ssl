@@ -14,6 +14,7 @@ void    *do_md5(void *data)
 		MD5ctx_init(&ctx);
 		md5(&ctx, to_digest->stdinput, to_digest->flags);
 		print_result_md5(to_digest, &ctx);
+		clean_opt_md5(to_digest);
 		return ("success one op");
 	}
 	if (to_digest->str)
@@ -21,15 +22,13 @@ void    *do_md5(void *data)
 		MD5ctx_init(&ctx);
 		md5(&ctx, to_digest->str, to_digest->flags);
 		print_result_md5(to_digest, &ctx);
-		return ("success -s op");
 	}
-
-	printf("STR opt: %s\n", to_digest->str);
-	if (to_digest->stdinput)
-		printf("STDIN: %s\n", to_digest->stdinput);
 	printf("List of files:\n");
 	while (to_digest->files && *to_digest->files)
-		printf("%s\n", *to_digest->files++);
+	{
+		
+	}
+	clean_opt_md5(to_digest);
 	return ("success");
 }
 
