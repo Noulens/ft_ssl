@@ -6,29 +6,30 @@
 
 void    *do_md5(void *data)
 {
-	t_md5	*to_digest = (t_md5 *)data;
-	char 	*res = NULL;
+	t_md5			*to_digest = (t_md5 *)data;
+	t_MD5Context	ctx = {0};
 
 	if (to_digest->flags & e_one_op)
 	{
-		md5(to_digest->stdinput, to_digest->flags);
-		print_result_md5(to_digest, res);
+		MD5ctx_init(&ctx);
+		md5(&ctx, to_digest->stdinput, to_digest->flags);
+		print_result_md5(to_digest, &ctx);
 		return ("success one op");
 	}
 	if (to_digest->str)
 	{
-		md5(to_digest->str, to_digest->flags);
-		print_result_md5(to_digest, res);
+		MD5ctx_init(&ctx);
+		md5(&ctx, to_digest->str, to_digest->flags);
+		print_result_md5(to_digest, &ctx);
 		return ("success -s op");
 	}
-		printf("STR opt: %s\n", to_digest->str);
+
+	printf("STR opt: %s\n", to_digest->str);
 	if (to_digest->stdinput)
 		printf("STDIN: %s\n", to_digest->stdinput);
 	printf("List of files:\n");
 	while (to_digest->files && *to_digest->files)
 		printf("%s\n", *to_digest->files++);
-
-	// TODO: put md5 hash here
 	return ("success");
 }
 

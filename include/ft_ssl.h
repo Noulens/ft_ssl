@@ -26,7 +26,6 @@ void		read_stdin(char **stdinput);
 t_parsed	parse(int ac, char **av);
 void		clean_opt_md5(t_md5 *to_clean);
 void		clean_opt_sha256(t_sha256 *to_clean);
-void		print_result_md5(t_md5 *opt, char *res);
 uint32_t	readWord(uint32_t data, int opt);
 uint64_t	readXWord(uint64_t data, int opt);
 void		reverseEndiannessArray32(uint32_t *array, size_t size);
@@ -40,7 +39,9 @@ uint32_t	H(uint32_t X, uint32_t Y, uint32_t Z);
 uint32_t	I(uint32_t X, uint32_t Y, uint32_t Z);
 uint32_t	rotateLeft(uint32_t x, uint32_t n);
 void		initialize_ABCD(uint32_t *A, uint32_t *B, uint32_t *C, uint32_t *D);
-char		*md5(char *s, int flags);
+void		md5(t_MD5Context *ctx, char *s, int flags);
+void		MD5ctx_init(t_MD5Context *ctx);
+void		print_result_md5(t_md5 *opt, t_MD5Context *ctx);
 
 /*
  * global variable for toolbox
