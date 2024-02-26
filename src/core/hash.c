@@ -26,7 +26,19 @@ void    *do_md5(void *data)
 	printf("List of files:\n");
 	while (to_digest->files && *to_digest->files)
 	{
+		char	*line = NULL;
+		int		fd = open(*to_digest->files++, O_RDONLY);
 
+		MD5ctx_init(&ctx);
+		line = get_next_line(fd);
+		while (line)
+		{
+			md5(&ctx, line, to_digest->flags);
+			free(line);
+			line = get_next_line(fd);
+		}
+		close(fd);
+		print_result_md5(to_digest, &ctx);
 	}
 	clean_opt_md5(to_digest);
 	return ("success");
