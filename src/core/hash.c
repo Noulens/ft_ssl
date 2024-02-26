@@ -26,7 +26,7 @@ void    *do_md5(void *data)
 	printf("List of files:\n");
 	while (to_digest->files && *to_digest->files)
 	{
-		
+
 	}
 	clean_opt_md5(to_digest);
 	return ("success");

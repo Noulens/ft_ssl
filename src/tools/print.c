@@ -16,7 +16,7 @@ void    print_usage()
 void	print_result_md5(t_md5 *opt, t_MD5Context *ctx)
 {
 	(void)opt;
-	ft_putstr_fd("(stdin)= ", 1);
+	ft_printf("(stdin)= ");
 	for(unsigned int i = 0; i < 4; ++i)
 	{
 		ctx->digest[(i * 4) + 0] = (uint8_t)((ctx->buffer[i] & 0x000000FF));
@@ -24,9 +24,9 @@ void	print_result_md5(t_md5 *opt, t_MD5Context *ctx)
 		ctx->digest[(i * 4) + 2] = (uint8_t)((ctx->buffer[i] & 0x00FF0000) >> 16);
 		ctx->digest[(i * 4) + 3] = (uint8_t)((ctx->buffer[i] & 0xFF000000) >> 24);
 	}
-	for(unsigned int i = 0; i < 16; ++i)
+	for(unsigned int i = 0; i < MD5_DIGEST_LGTH; ++i)
 	{
-		printf("%02x", ctx->digest[i]);
+		ft_printf("%x", ctx->digest[i]);
 	}
-	printf("\n");
+	ft_printf("\n");
 }
