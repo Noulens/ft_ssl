@@ -27,8 +27,10 @@ void    *do_md5(void *data)
 	while (to_digest->files && *to_digest->files)
 	{
 		char	*line = NULL;
-		int		fd = open(*to_digest->files++, O_RDONLY);
+		int		fd = open(*to_digest->files, O_RDONLY);
 
+		if (fd == -1)
+			ft_fprintf(2, "ft_ssl: md5: %s: No such file or directory\n", *to_digest->files);
 		MD5ctx_init(&ctx);
 		line = get_next_line(fd);
 		while (line)
@@ -39,6 +41,7 @@ void    *do_md5(void *data)
 		}
 		close(fd);
 		print_result_md5(to_digest, &ctx);
+		to_digest->files++;
 	}
 	clean_opt_md5(to_digest);
 	return ("success");
