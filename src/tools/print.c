@@ -4,6 +4,28 @@
 
 #include "ft_ssl.h"
 
+void	put_hex(unsigned long digest)
+{
+	uint8_t	hex_c;
+	uint8_t	tab[2];
+	int		i = 0;
+
+	while (digest)
+	{
+		hex_c = (char)(digest % 16);
+		if (hex_c < 10)
+			hex_c += 48;
+		else
+			hex_c += 87;
+		tab[i % 2] = hex_c;
+		digest /= 16;
+		i++;
+	}
+	for (int i = 1; i >= 0; i--)
+		ft_putchar_fd(tab[i], 1);
+}
+
+
 void    print_usage()
 {
 	ft_putstr_fd("help:\n\n", 2);
@@ -24,9 +46,7 @@ void	print_result_md5(t_md5 *opt, t_MD5Context *ctx)
 		ctx->digest[(i * 4) + 2] = (uint8_t)((ctx->buffer[i] & 0x00FF0000) >> 16);
 		ctx->digest[(i * 4) + 3] = (uint8_t)((ctx->buffer[i] & 0xFF000000) >> 24);
 	}
-	for(unsigned int i = 0; i < MD5_DIGEST_LGTH; ++i)
-	{
-		ft_printf("%x", ctx->digest[i]);
-	}
-	ft_printf("\n");
+	for(unsigned int i = 0; i < 16; ++i)
+		put_hex(ctx->digest[i]);
+	ft_putchar_fd('\n', 1);
 }
