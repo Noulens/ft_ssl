@@ -92,6 +92,7 @@ void MD5ctx_init(t_MD5Context *ctx)
 	ctx->buffer[B] = ABCD[B];
 	ctx->buffer[C] = ABCD[C];
 	ctx->buffer[D] = ABCD[D];
+	ft_memset(ctx->digest, 0, MD5_DIGEST_LGTH);
 }
 
 void	md5(t_MD5Context *ctx, char *s, int flags)

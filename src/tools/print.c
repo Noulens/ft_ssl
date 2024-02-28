@@ -7,7 +7,7 @@
 void	put_hex(unsigned long digest)
 {
 	uint8_t	hex_c;
-	uint8_t	tab[2];
+	uint8_t	tab[2] = {'0', '0'};
 	int		i = 0;
 
 	while (digest)
@@ -17,11 +17,11 @@ void	put_hex(unsigned long digest)
 			hex_c += 48;
 		else
 			hex_c += 87;
-		tab[i % 2] = hex_c;
+		tab[i] = hex_c;
 		digest /= 16;
 		i++;
 	}
-	for (int i = 1; i >= 0; i--)
+	for (; i >= 0; i--)
 		ft_putchar_fd(tab[i], 1);
 }
 
@@ -48,5 +48,6 @@ void	print_result_md5(t_md5 *opt, t_MD5Context *ctx)
 	}
 	for(unsigned int i = 0; i < 16; ++i)
 		put_hex(ctx->digest[i]);
+		// printf("%02x", ctx->digest[i]);
 	ft_putchar_fd('\n', 1);
 }
