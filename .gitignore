@@ -1,5 +1,6 @@
 # clion stuff
 /.idea
+.idea/*
 
 # Prerequisites
 *.d
