@@ -26,19 +26,20 @@ void    *do_md5(void *data)
 	printf("List of files:\n");
 	while (to_digest->files && *to_digest->files)
 	{
-		char	*line = NULL;
+		char	buff[BUFFER_SIZE];
+		ssize_t	nb_read;
 		int		fd = open(*to_digest->files, O_RDONLY);
 
 		if (fd == -1)
 			ft_fprintf(2, "ft_ssl: md5: %s: No such file or directory\n", *to_digest->files);
 		MD5ctx_init(&ctx);
-		line = get_next_line(fd);
-		while (line)
+		ft_memset(buff, 0, BUFFER_SIZE);
+		while ((nb_read = read(fd, buff, BUFFER_SIZE) > 0))
 		{
-			md5(&ctx, line, to_digest->flags);
-			free(line);
-			line = get_next_line(fd);
+			md5(&ctx, buff, to_digest->flags);
 		}
+		if (nb_read == -1)
+			error("ft_ssl: read: ", errno, FALSE);
 		close(fd);
 		print_result_md5(to_digest, &ctx);
 		to_digest->files++;

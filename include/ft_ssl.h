@@ -16,6 +16,10 @@
 # include "libft.h"
 # include "struct.h"
 
+# ifndef BUFFER_SIZE
+# define BUFFER_SIZE 4096
+# endif
+
 void		*do_md5(void *to_digest);
 void		*do_sha256(void *to_digest);
 void		error(char *msg, int error_code, int must_exit);
@@ -41,6 +45,7 @@ uint32_t	rotateLeft(uint32_t x, uint32_t n);
 void		initialize_ABCD(uint32_t *A, uint32_t *B, uint32_t *C, uint32_t *D);
 void		md5(t_MD5Context *ctx, char *s, int flags);
 void		MD5ctx_init(t_MD5Context *ctx);
+void		md5append(t_MD5Context *ctx);
 void		print_result_md5(t_md5 *opt, t_MD5Context *ctx);
 
 /*

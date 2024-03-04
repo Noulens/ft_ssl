@@ -59,7 +59,7 @@ void	bit_printer(uint8_t c)
 	}
 }
 
-void print_full_message(uint8_t *full, size_t len)
+void	print_full_message(uint8_t *full, size_t len)
 {
 	size_t		i = 0;
 	uint8_t		*ptr = full;
@@ -75,7 +75,7 @@ void print_full_message(uint8_t *full, size_t len)
 	}
 }
 
-void rotate_buffers(t_MD5Context *ctx)
+void	rotate_buffers(t_MD5Context *ctx)
 {
 	uint32_t	tmp = 0;
 
@@ -85,7 +85,7 @@ void rotate_buffers(t_MD5Context *ctx)
 	(*ctx).buffer[A] = tmp;
 }
 
-void MD5ctx_init(t_MD5Context *ctx)
+void	MD5ctx_init(t_MD5Context *ctx)
 {
 	ctx->size = 0x0;
 	ctx->buffer[A] = ABCD[A];
@@ -102,7 +102,6 @@ void	md5(t_MD5Context *ctx, char *s, int flags)
 
 	if (!(flags & e_little))
 	{
-		reverseEndiannessArray32(T, 64);
 		reverseEndiannessArray32(ctx->buffer, 4);
 	}
 	ctx->size = ft_strlen(s);
@@ -217,6 +216,12 @@ void	md5(t_MD5Context *ctx, char *s, int flags)
 	free(full_message);
 	full_message = NULL;
 	offset = NULL;
+}
+
+void	md5append(t_MD5Context *ctx)
+{
+	(void)ctx;
+	return ;
 }
 
 uint32_t F(uint32_t X, uint32_t Y, uint32_t Z)
