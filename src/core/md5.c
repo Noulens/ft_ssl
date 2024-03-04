@@ -93,6 +93,7 @@ void	MD5ctx_init(t_MD5Context *ctx)
 	ctx->buffer[C] = ABCD[C];
 	ctx->buffer[D] = ABCD[D];
 	ft_memset(ctx->digest, 0, MD5_DIGEST_LGTH);
+	ft_memset(ctx->input, 0, 64);
 }
 
 void	md5(t_MD5Context *ctx, char *s, int flags)
@@ -101,98 +102,88 @@ void	md5(t_MD5Context *ctx, char *s, int flags)
 	uint8_t			*offset = NULL;
 	size_t			len;
 
-	if (!s || ft_strlen(s) == 0)
+	if (s && ft_strlen(s))
 	{
-		ctx->size = 0;
-		return ;
-	}
-	if (!(flags & e_little))
-	{
-		reverseEndiannessArray32(ctx->buffer, 4);
-	}
-	//  i cut here 1
-
-	// till here 1
-	offset = s;
-	len = ft_strlen(s);
-	for (size_t i = 0; i <= len; i += 64)
-	{
-		// now we have to split into sixteen 32-bit “words” the message of 512 bits
-		ft_memset(X, 0x0, sizeof(X));
-		for (size_t j = 0; j < 16; j++)
-			X[j] |= offset[j * 4]
-					| (offset[j * 4 + 1] << 8)
-					| (offset[j * 4 + 2] << 16)
-					| (offset[j * 4 + 3] << 24);
 		if (!(flags & e_little))
-			reverseEndiannessArray32(X, 16);
-		// 2
-		// eof 2
-		// we start the loop
-		// now we proceed to the rounds
-		/* Save A as AA, B as BB, C as CC, and D as DD. */
-		uint32_t AA = ctx->buffer[A];
-		uint32_t BB = ctx->buffer[B];
-		uint32_t CC = ctx->buffer[C];
-		uint32_t DD = ctx->buffer[D];
-		for (size_t l = 0; l < 16; l++)
 		{
-			ctx->buffer[A] = ctx->buffer[B] +
-							rotateLeft(ctx->buffer[A] +
-							F(ctx->buffer[B], ctx->buffer[C],ctx->buffer[D]) +
-							X[l] + T[l], S[l]);
-			rotate_buffers(ctx);
+			reverseEndiannessArray32(ctx->buffer, 4);
 		}
-		for (size_t l = 0; l < 16; l++)
+		offset = (uint8_t *)s;
+		len = ft_strlen(s);
+		while (len <= 64)
 		{
-			ctx->buffer[A] = ctx->buffer[B] +
-							rotateLeft(ctx->buffer[A] +
-							G(ctx->buffer[B], ctx->buffer[C],ctx->buffer[D]) +
-							X[(l * 5 + 1) % 16] + T[l + 16], S[l + 16]);
-			rotate_buffers(ctx);
+			ft_memset(X, 0x0, sizeof(X));
+			for (size_t j = 0; j < 16; j++)
+				X[j] |= offset[j * 4]
+						| (offset[j * 4 + 1] << 8)
+						| (offset[j * 4 + 2] << 16)
+						| (offset[j * 4 + 3] << 24);
+			if (!(flags & e_little))
+				reverseEndiannessArray32(X, 16);
+			uint32_t AA = ctx->buffer[A];
+			uint32_t BB = ctx->buffer[B];
+			uint32_t CC = ctx->buffer[C];
+			uint32_t DD = ctx->buffer[D];
+			for (size_t l = 0; l < 16; l++)
+			{
+				ctx->buffer[A] = ctx->buffer[B] +
+								rotateLeft(ctx->buffer[A] +
+								F(ctx->buffer[B], ctx->buffer[C],ctx->buffer[D]) +
+								X[l] + T[l], S[l]);
+				rotate_buffers(ctx);
+			}
+			for (size_t l = 0; l < 16; l++)
+			{
+				ctx->buffer[A] = ctx->buffer[B] +
+								rotateLeft(ctx->buffer[A] +
+								G(ctx->buffer[B], ctx->buffer[C],ctx->buffer[D]) +
+								X[(l * 5 + 1) % 16] + T[l + 16], S[l + 16]);
+				rotate_buffers(ctx);
+			}
+			for (size_t l = 0; l < 16; l++)
+			{
+				ctx->buffer[A] = ctx->buffer[B] +
+								rotateLeft(ctx->buffer[A] +
+								H(ctx->buffer[B], ctx->buffer[C],ctx->buffer[D]) +
+								X[(l * 3 + 5) % 16] + T[l + 32], S[l + 32]);
+				rotate_buffers(ctx);
+			}
+			for (size_t l = 0; l < 16; l++)
+			{
+				ctx->buffer[A] = ctx->buffer[B] +
+								rotateLeft(ctx->buffer[A] +
+								I(ctx->buffer[B], ctx->buffer[C],ctx->buffer[D]) +
+								X[(l * 7) % 16] + T[l + 48], S[l + 48]);
+				rotate_buffers(ctx);
+			}
+			ctx->buffer[A] += AA;
+			ctx->buffer[B] += BB;
+			ctx->buffer[C] += CC;
+			ctx->buffer[D] += DD;
+			ctx->size += 64;
+			offset += 64;
+			len -= 64;
 		}
-		for (size_t l = 0; l < 16; l++)
-		{
-			ctx->buffer[A] = ctx->buffer[B] +
-							rotateLeft(ctx->buffer[A] +
-							H(ctx->buffer[B], ctx->buffer[C],ctx->buffer[D]) +
-							X[(l * 3 + 5) % 16] + T[l + 32], S[l + 32]);
-			rotate_buffers(ctx);
-		}
-		for (size_t l = 0; l < 16; l++)
-		{
-			ctx->buffer[A] = ctx->buffer[B] +
-							rotateLeft(ctx->buffer[A] +
-							I(ctx->buffer[B], ctx->buffer[C],ctx->buffer[D]) +
-							X[(l * 7) % 16] + T[l + 48], S[l + 48]);
-			rotate_buffers(ctx);
-		}
-		/* Then perform the following additions. (That is increment each
-		 * of the four registers by the value it had before this block
-		 * was started.) */
-		ctx->buffer[A] += AA;
-		ctx->buffer[B] += BB;
-		ctx->buffer[C] += CC;
-		ctx->buffer[D] += DD;
-		ctx->size += 64;
-		offset += 64;
+		ctx->size += ft_strlen((char *)offset);
+		ft_memcpy(ctx->input, offset, len);
 	}
-	ctx->size += ft_strlen
+	return ;
 }
 
-void	md5append(t_MD5Context *ctx)
+void	md5append(t_MD5Context *ctx, int flags)
 {
-	// 1
-		//TODO
+	size_t		len;
+	uint32_t	X[16];
+
+	len = ft_strlen((char *)ctx->input);
 //	printf("LEN: %lu\n", ctx.size);
-	size_t bits = ctx->size * 8;
-	// to know the next X multiple after n: (n + (X - 1)) - ((n + (X - 1)) % X)
+	size_t bits = len * 8;
 	size_t bits_to_add;
-	if (!ctx->size)
+	if (!len)
 		bits_to_add = 448;
 	else
 	{
-		bits_to_add = ((bits + 511) - ((bits + 511) % 512)) - ctx->size * 8;
+		bits_to_add = ((bits + 511) - ((bits + 511) % 512)) - len * 8;
 //		ft_printf("BITS to add 1: %d\n", bits_to_add);
 		if (bits_to_add % 512 == 0)
 			bits_to_add = 448;
@@ -205,37 +196,76 @@ void	md5append(t_MD5Context *ctx)
 //			ft_printf("BITS to add 2: %d\n", bits_to_add);
 		}
 	}
-	//TODO
 //	ft_printf("to add: %d\n", bits_to_add);
 	uint8_t *full_message = (uint8_t *) malloc(
-			ctx->size + bits_to_add / 8 + sizeof(uint64_t) + 1);
+			len + bits_to_add / 8 + sizeof(uint64_t) + 1);
 	if (!full_message)
 		error("md5 func", errno, TRUE);
-	full_message[ctx->size + bits_to_add / 8 + 8] = 0;
-	ft_memcpy(full_message, s, ctx->size);
-	ft_memcpy(full_message + ctx->size, PADDING, bits_to_add / 8);
+	full_message[len + bits_to_add / 8 + 8] = 0;
+	ft_memcpy(full_message, ctx->input, len);
+	ft_memcpy(full_message + len, PADDING, bits_to_add / 8);
 	if (!(flags & e_little))
 		reverseEndiannessArray64(&ctx->size, 1);
 	// we loop on the full message and increment by 64 bytes
 //	printf("msg len %lu\n", ctx.size + bits_to_add / 8 + sizeof(uint64_t));
 	// I i have a full message of 512 bits
-	// end of 1
-
-	// 2
-
+	ft_memset(X, 0x0, sizeof(X));
+	for (size_t j = 0; j < 16; j++)
+		X[j] |= full_message[j * 4]
+				| (full_message[j * 4 + 1] << 8)
+				| (full_message[j * 4 + 2] << 16)
+				| (full_message[j * 4 + 3] << 24);
+	if (!(flags & e_little))
+		reverseEndiannessArray32(X, 16);
 			// if we are at the end, we append the total length as 2 words as 2 halves of size
-		if (i == ctx->size + bits_to_add / 8 + sizeof(uint64_t) - 64)
-		{
-			X[14] = (uint32_t)(ctx->size * 8);
-			X[15] = (uint32_t)(ctx->size >> 32); // Right shift by 32 bits to get the upper 32 bits
+	X[14] = (uint32_t)(ctx->size * 8);
+	X[15] = (uint32_t)(ctx->size >> 32); // Right shift by 32 bits to get the upper 32 bits
 
 //			uint64_t bob = 0;
 //			bob |= (uint64_t)X[15] << 32; // Shift the upper 32 bits by 32 positions
 //			bob |= X[14]; // Combine with the lower 32 bits
 //			print_full_message(full_message, ctx.size + bits_to_add / 8 + sizeof(uint64_t));
 //			printf("Appended len: %lu, total len %% 512 = %lu\n", bob, (ctx.size * 8 + bits_to_add + 64) % 512);
-		}
-		// end of 2
+			uint32_t AA = ctx->buffer[A];
+			uint32_t BB = ctx->buffer[B];
+			uint32_t CC = ctx->buffer[C];
+			uint32_t DD = ctx->buffer[D];
+			for (size_t l = 0; l < 16; l++)
+			{
+				ctx->buffer[A] = ctx->buffer[B] +
+								rotateLeft(ctx->buffer[A] +
+								F(ctx->buffer[B], ctx->buffer[C],ctx->buffer[D]) +
+								X[l] + T[l], S[l]);
+				rotate_buffers(ctx);
+			}
+			for (size_t l = 0; l < 16; l++)
+			{
+				ctx->buffer[A] = ctx->buffer[B] +
+								rotateLeft(ctx->buffer[A] +
+								G(ctx->buffer[B], ctx->buffer[C],ctx->buffer[D]) +
+								X[(l * 5 + 1) % 16] + T[l + 16], S[l + 16]);
+				rotate_buffers(ctx);
+			}
+			for (size_t l = 0; l < 16; l++)
+			{
+				ctx->buffer[A] = ctx->buffer[B] +
+								rotateLeft(ctx->buffer[A] +
+								H(ctx->buffer[B], ctx->buffer[C],ctx->buffer[D]) +
+								X[(l * 3 + 5) % 16] + T[l + 32], S[l + 32]);
+				rotate_buffers(ctx);
+			}
+			for (size_t l = 0; l < 16; l++)
+			{
+				ctx->buffer[A] = ctx->buffer[B] +
+								rotateLeft(ctx->buffer[A] +
+								I(ctx->buffer[B], ctx->buffer[C],ctx->buffer[D]) +
+								X[(l * 7) % 16] + T[l + 48], S[l + 48]);
+				rotate_buffers(ctx);
+			}
+			ctx->buffer[A] += AA;
+			ctx->buffer[B] += BB;
+			ctx->buffer[C] += CC;
+			ctx->buffer[D] += DD;
 	return ;
 }
 

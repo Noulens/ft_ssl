@@ -13,6 +13,7 @@ void    *do_md5(void *data)
 	{
 		MD5ctx_init(&ctx);
 		md5(&ctx, to_digest->stdinput, to_digest->flags);
+		md5append(&ctx, to_digest->flags);
 		print_result_md5(to_digest, &ctx);
 		clean_opt_md5(to_digest);
 		return ("success one op");
@@ -21,6 +22,7 @@ void    *do_md5(void *data)
 	{
 		MD5ctx_init(&ctx);
 		md5(&ctx, to_digest->str, to_digest->flags);
+		md5append(&ctx, to_digest->flags);
 		print_result_md5(to_digest, &ctx);
 	}
 	printf("List of files:\n");
