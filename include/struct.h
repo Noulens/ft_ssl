@@ -58,9 +58,10 @@ typedef struct s_opt_md5
 
 typedef struct s_md5ctx
 {
-	uint64_t	size;        // Size of input in bytes
-	uint32_t	buffer[4];   // Current accumulation of hash
-	uint8_t		input[64];    // Input to be used in the next step
+	uint64_t	size;       // Size of input in bytes
+	uint32_t	buffer[4];  // Current accumulation of hash
+	uint8_t		input[64];  // Input to be used in the next step
+	size_t      final_len;  // len of final input
 	uint8_t		digest[MD5_DIGEST_LGTH];   // Result of algorithm
 }	t_MD5Context;
 
