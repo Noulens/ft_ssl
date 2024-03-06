@@ -25,7 +25,6 @@ void    *do_md5(void *data)
 		md5append(&ctx, to_digest->flags);
 		print_result_md5(to_digest, &ctx);
 	}
-//	printf("List of files:\n");
 	while (to_digest->files && *to_digest->files)
 	{
 		char	buff[BUFFER_SIZE + 1];
@@ -38,14 +37,12 @@ void    *do_md5(void *data)
 		ft_memset(buff, 0, BUFFER_SIZE + 1);
 		while ((nb_read = read(fd, buff, BUFFER_SIZE)) > 0)
 		{
-//			ft_printf("%ld\n", nb_read);
 			buff[nb_read] = 0;
 			md5(&ctx, buff, to_digest->flags, nb_read);
 			ft_memset(buff, 0, BUFFER_SIZE + 1);
 		}
 		if (nb_read == -1)
 			error("ft_ssl: read: ", errno, FALSE);
-//		printf("check size total: %ld\n", ctx.size);
 		md5append(&ctx, to_digest->flags);
 		close(fd);
 		print_result_md5(to_digest, &ctx);

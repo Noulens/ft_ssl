@@ -145,8 +145,6 @@ void	md5(t_MD5Context *ctx, char *s, int flags, size_t l)
 		}
 		ctx->size += len;
 		ctx->final_len = len;
-//		printf("ctx.size: %ld\n", ctx->size);
-//		printf("offset len: %ld\n", len);
 		ft_memcpy(ctx->input, offset, len);
 	}
 }
@@ -182,10 +180,7 @@ void	md5append(t_MD5Context *ctx, int flags)
 	uint8_t     *full_message = NULL;
 	uint8_t     *offset = NULL;
 
-//	printf("A: %02x B: %02x C: %02x D: %02x\n", ctx->buffer[A], ctx->buffer[B], ctx->buffer[C], ctx->buffer[D]);
-//	printf("final len %ld\n", ctx->final_len);
 	bits_to_add = bitsToAdd(ctx->final_len);
-//	printf("Bits to add: %ld\n", bits_to_add);
 	full_message = (uint8_t *) malloc(ctx->final_len + bits_to_add / 8 + sizeof(uint64_t) + 1);
 	if (!full_message)
 		error("md5 func", errno, TRUE);
@@ -203,14 +198,6 @@ void	md5append(t_MD5Context *ctx, int flags)
 		{
 			X[14] = (uint32_t)(ctx->size * 8);
 			X[15] = (uint32_t)((ctx->size * 8) >> 32);
-//			print_full_message(full_message, len + bits_to_add / 8);
-//			print_full_message((uint8_t *)(X + 14), sizeof(uint64_t));
-//			uint64_t bob = 0;
-//			bob |= (uint64_t)X[15] << 32;
-//			bob |= X[14];
-//			uint64_t bob2 = bob / 8;
-//			printf("len before 64 bits of len: %lu\n", len * 8 + bits_to_add);
-//			printf("BOB: %lx, Bob/8: %lu, bob/8 *8: %lu\n", bob, bob2, bob2 * 8);
 		}
 		md5rounds(ctx, X);
 	}
