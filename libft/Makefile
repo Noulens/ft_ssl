@@ -97,7 +97,8 @@ SRCS		=	ft_isalpha.c\
 				ft_ld.c\
 				ft_ltoa.c\
 				ft_lstsort.c \
-				ft_append.c
+				ft_append.c \
+				ft_bit_printer.c
 
 
 OBJS		=	${SRCS:.c=.o}

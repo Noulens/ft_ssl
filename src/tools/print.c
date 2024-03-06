@@ -38,7 +38,10 @@ void    print_usage()
 void	print_result_md5(t_md5 *opt, t_MD5Context *ctx)
 {
 	(void)opt;
-	ft_printf("(stdin)= ");
+	if (opt->stdinput && (opt->flags & e_p))
+		ft_printf("(%s)= ", opt->stdinput);
+	else
+		ft_printf("(stdin)= ");
 	for(unsigned int i = 0; i < 4; ++i)
 	{
 		ctx->digest[(i * 4) + 0] = (uint8_t)((ctx->buffer[i] & 0x000000FF));
@@ -49,35 +52,4 @@ void	print_result_md5(t_md5 *opt, t_MD5Context *ctx)
 	for(unsigned int i = 0; i < MD5_DIGEST_LGTH; ++i)
 		put_hex(ctx->digest[i]);
 	ft_putchar_fd('\n', 1);
-}
-
-void	bit_printer(uint8_t c)
-{
-	int	bit_comp;
-
-	bit_comp = 0b10000000;
-	while (bit_comp)
-	{
-		if (bit_comp & c)
-			ft_putchar_fd('1', 1);
-		else
-			ft_putchar_fd('0', 1);
-		bit_comp >>= 1;
-	}
-}
-
-void	print_full_message(uint8_t *full, size_t len)
-{
-	size_t		i = 0;
-	uint8_t		*ptr = full;
-
-	while (i < len)
-	{
-		bit_printer(ptr[i]);
-		i++;
-		if (i % 4 == 0)
-			ft_putchar_fd('\n', 1);
-		else
-			ft_putchar_fd(' ', 1);
-	}
 }

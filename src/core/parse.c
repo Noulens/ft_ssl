@@ -55,7 +55,6 @@ void *md5parser(int ac, char **av)
 	if (ac == 2)
 	{
 		opt->flags |= e_one_op;
-		read_stdin(&opt->stdinput);
 		return (opt);
 	}
 	av += 2;
@@ -115,8 +114,6 @@ void *md5parser(int ac, char **av)
 	}
 	if (len > 0)
 		opt->files = av;
-	if ((opt->flags & e_p) || (opt->flags & e_q))
-		read_stdin(&opt->stdinput);
 	return (opt);
 }
 
@@ -194,7 +191,5 @@ void *sha256parser(int ac, char **av)
 	}
 	if (len > 0)
 		opt->files = av;
-	if ((opt->flags & e_p) || (opt->flags & e_q))
-		read_stdin(&opt->stdinput);
 	return (opt);
 }
