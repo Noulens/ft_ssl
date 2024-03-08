@@ -8,13 +8,19 @@ static void md5_readinput(t_md5 *to_digest, t_MD5Context *ctx, int fd)
 {
 	char    buff[BUFFER_SIZE + 1];
 	ssize_t nb_read;
+	int     start = 1;
 
 	MD5ctx_init(ctx);
 	ft_memset(buff, 0, BUFFER_SIZE + 1);
-	while ((nb_read = read(fd, buff, BUFFER_SIZE)) > 0)
+	while ((nb_read = read(fd, buff, BUFFER_SIZE)) >= 0)
 	{
+		(void)(!(to_digest->flags & e_file) && !(to_digest->flags & e_q) && start == 1 && (to_digest->flags & e_p) && ft_printf("(\""));
+		(void)(!(to_digest->flags & e_file) && !(to_digest->flags & e_q) && (to_digest->flags & e_p) && (start = 0));
 		buff[nb_read] = 0;
+		(void)(!(to_digest->flags & e_file) && !(to_digest->flags & e_q) && !start && (to_digest->flags & e_p) && ft_printf("%s", buff));
 		md5(ctx, buff, to_digest->flags, nb_read);
+		if (nb_read == 0)
+			break;
 		ft_memset(buff, 0, BUFFER_SIZE + 1);
 	}
 	if (nb_read == -1)
@@ -26,7 +32,7 @@ static void md5_readinput(t_md5 *to_digest, t_MD5Context *ctx, int fd)
 	else
 	{
 		md5append(ctx, to_digest->flags);
-		print_result_md5(to_digest, ctx);
+		(void)(!(to_digest->flags & e_file) && !(to_digest->flags & e_q) && !start && (to_digest->flags & e_p) && ft_printf("\") = "));
 	}
 }
 
@@ -38,6 +44,7 @@ void    *do_md5(void *data)
 	if ((to_digest->flags & e_one_op) || (to_digest->flags & e_p) || (to_digest->flags & e_q))
 	{
 		md5_readinput(to_digest, &ctx, STDIN_FILENO);
+		print_input_digest(to_digest->flags, ctx.digest, ctx.buffer, MD5_DIGEST_LGTH);
 		if (to_digest->flags & e_one_op)
 		{
 			clean_opt_md5(to_digest);
@@ -49,7 +56,7 @@ void    *do_md5(void *data)
 		MD5ctx_init(&ctx);
 		md5(&ctx, to_digest->str, to_digest->flags, ft_strlen(to_digest->str));
 		md5append(&ctx, to_digest->flags);
-		print_result_md5(to_digest, &ctx);
+		print_digest(to_digest->flags, ctx.digest, ctx.buffer, MD5_DIGEST_LGTH, to_digest->str);
 	}
 	while (to_digest->files && *to_digest->files)
 	{
@@ -59,7 +66,9 @@ void    *do_md5(void *data)
 			ft_fprintf(2, "ft_ssl: md5: %s: No such file or directory\n", *to_digest->files);
 		else
 		{
+			to_digest->flags |= e_file;
 			md5_readinput(to_digest, &ctx, fd);
+			print_digest(to_digest->flags, ctx.digest, ctx.buffer, MD5_DIGEST_LGTH, *to_digest->files);
 			close(fd);
 		}
 		to_digest->files++;

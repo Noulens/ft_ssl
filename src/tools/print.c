@@ -35,21 +35,51 @@ void    print_usage()
 	ft_putchar_fd('\n', 2);
 }
 
-void	print_result_md5(t_md5 *opt, t_MD5Context *ctx)
+void    print_input_digest(int opt, uint8_t *digest, const uint32_t *buffer, size_t len)
 {
-	(void)opt;
-	if (opt->stdinput && (opt->flags & e_p))
-		ft_printf("(%s)= ", opt->stdinput);
-	else
-		ft_printf("(stdin)= ");
-	for(unsigned int i = 0; i < 4; ++i)
+	for(unsigned int i = 0; i < len / 4; ++i)
 	{
-		ctx->digest[(i * 4) + 0] = (uint8_t)((ctx->buffer[i] & 0x000000FF));
-		ctx->digest[(i * 4) + 1] = (uint8_t)((ctx->buffer[i] & 0x0000FF00) >>  8);
-		ctx->digest[(i * 4) + 2] = (uint8_t)((ctx->buffer[i] & 0x00FF0000) >> 16);
-		ctx->digest[(i * 4) + 3] = (uint8_t)((ctx->buffer[i] & 0xFF000000) >> 24);
+		digest[(i * 4) + 0] = (uint8_t)((buffer[i] & 0x000000FF));
+		digest[(i * 4) + 1] = (uint8_t)((buffer[i] & 0x0000FF00) >>  8);
+		digest[(i * 4) + 2] = (uint8_t)((buffer[i] & 0x00FF0000) >> 16);
+		digest[(i * 4) + 3] = (uint8_t)((buffer[i] & 0xFF000000) >> 24);
 	}
-	for(unsigned int i = 0; i < MD5_DIGEST_LGTH; ++i)
-		put_hex(ctx->digest[i]);
+	if (!(opt & e_p) && !(opt & e_q))
+		ft_printf("(stdin) = ");
+	for(unsigned int i = 0; i < len; ++i)
+			put_hex(digest[i]);
+	ft_putchar_fd('\n', 1);
+}
+
+void	print_digest(int opt, uint8_t *digest, const uint32_t *buffer, size_t len, char *str)
+{
+	for(unsigned int i = 0; i < len / 4; ++i)
+	{
+		digest[(i * 4) + 0] = (uint8_t)((buffer[i] & 0x000000FF));
+		digest[(i * 4) + 1] = (uint8_t)((buffer[i] & 0x0000FF00) >>  8);
+		digest[(i * 4) + 2] = (uint8_t)((buffer[i] & 0x00FF0000) >> 16);
+		digest[(i * 4) + 3] = (uint8_t)((buffer[i] & 0xFF000000) >> 24);
+	}
+	if (!(opt & e_r) && !(opt & e_q))
+	{
+		if (opt & e_file)
+			ft_printf("MD5 (%s) = ", str);
+		else
+			ft_printf("MD5 (\"%s\") = ", str);
+		for(unsigned int i = 0; i < len; ++i)
+			put_hex(digest[i]);
+	}
+	else if (!(opt & e_q))
+	{
+		for(unsigned int i = 0; i < len; ++i)
+			put_hex(digest[i]);
+		if (opt & e_file)
+			ft_printf(" %s", str);
+		else
+			ft_printf(" \"%s\"", str);
+	}
+	else
+		for(unsigned int i = 0; i < len; ++i)
+			put_hex(digest[i]);
 	ft_putchar_fd('\n', 1);
 }

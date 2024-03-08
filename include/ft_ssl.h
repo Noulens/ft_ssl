@@ -34,6 +34,15 @@ uint32_t	readWord(uint32_t data, int opt);
 uint64_t	readXWord(uint64_t data, int opt);
 void		reverseEndiannessArray32(uint32_t *array, size_t size);
 void		reverseEndiannessArray64(uint64_t *array, size_t size);
+
+/*
+ * print function
+ * */
+
+void		print_digest(int opt, uint8_t *digest, const uint32_t *buffer, size_t len, char *str);
+void        print_input_digest(int opt, uint8_t *digest, const uint32_t *buffer, size_t len);
+void        print_full_message(uint8_t *full, size_t len);
+
 /*
  * md5 functions
  */
@@ -46,8 +55,6 @@ void		initialize_ABCD(uint32_t *A, uint32_t *B, uint32_t *C, uint32_t *D);
 void		md5(t_MD5Context *ctx, char *s, int flags, size_t l);
 void		MD5ctx_init(t_MD5Context *ctx);
 void		md5append(t_MD5Context *ctx, int flags);
-void		print_result_md5(t_md5 *opt, t_MD5Context *ctx);
-void        print_full_message(uint8_t *full, size_t len);
 
 /*
  * global variable for toolbox

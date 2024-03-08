@@ -33,7 +33,8 @@ typedef enum e_flags
 	e_r = 0b00000100,
 	e_s = 0b00001000,
 	e_one_op = 0b00010000,
-	e_little = 0b00100000
+	e_little = 0b00100000,
+	e_file = 0b01000000
 }   t_flags;
 
 typedef enum e_operation
