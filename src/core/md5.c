@@ -4,12 +4,12 @@
 
 #include "ft_ssl.h"
 
-static uint32_t ABCD[4] =
+static const uint32_t ABCD[4] =
 {
 	0x67452301, 0xefcdab89, 0x98badcfe, 0x10325476
 };
 
-static uint32_t S[64] =
+static const uint32_t S[64] =
 {
 	7, 12, 17, 22, 7, 12, 17, 22, 7, 12, 17, 22, 7, 12, 17, 22,
 	5, 9, 14, 20, 5, 9, 14, 20, 5, 9, 14, 20, 5, 9, 14, 20,
@@ -17,7 +17,7 @@ static uint32_t S[64] =
 	6, 10, 15, 21, 6, 10, 15, 21, 6, 10, 15, 21, 6, 10, 15, 21
 };
 
-static uint32_t T[64] =
+static const uint32_t T[64] =
 {
 	0xd76aa478, 0xe8c7b756, 0x242070db, 0xc1bdceee,
 	0xf57c0faf, 0x4787c62a, 0xa8304613, 0xfd469501,
@@ -37,22 +37,12 @@ static uint32_t T[64] =
 	0xf7537e82, 0xbd3af235, 0x2ad7d2bb, 0xeb86d391
 };
 
-static uint8_t PADDING[64] =
+static const uint8_t PADDING[64] =
 {
 	0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 };
-
-void	rotate_buffers(t_MD5Context *ctx)
-{
-	uint32_t	tmp = 0;
-
-	tmp = (*ctx).buffer[D];
-	for (int rotb = 3; rotb > 0; rotb--)
-		(*ctx).buffer[rotb] = (*ctx).buffer[rotb - 1];
-	(*ctx).buffer[A] = tmp;
-}
 
 void	MD5ctx_init(t_MD5Context *ctx)
 {
@@ -77,7 +67,7 @@ void md5rounds(t_MD5Context *ctx, const uint32_t *X)
 						rotateLeft(ctx->buffer[A] +
 						F(ctx->buffer[B], ctx->buffer[C],ctx->buffer[D]) +
 						X[l] + T[l], S[l]);
-		rotate_buffers(ctx);
+		rotate_buffers(ctx->buffer, 4);
 	}
 	for (size_t l = 0; l < 16; l++)
 	{
@@ -85,7 +75,7 @@ void md5rounds(t_MD5Context *ctx, const uint32_t *X)
 						rotateLeft(ctx->buffer[A] +
 						G(ctx->buffer[B], ctx->buffer[C],ctx->buffer[D]) +
 						X[(l * 5 + 1) % 16] + T[l + 16], S[l + 16]);
-		rotate_buffers(ctx);
+		rotate_buffers(ctx->buffer, 4);
 	}
 	for (size_t l = 0; l < 16; l++)
 	{
@@ -93,7 +83,7 @@ void md5rounds(t_MD5Context *ctx, const uint32_t *X)
 						rotateLeft(ctx->buffer[A] +
 						H(ctx->buffer[B], ctx->buffer[C],ctx->buffer[D]) +
 						X[(l * 3 + 5) % 16] + T[l + 32], S[l + 32]);
-		rotate_buffers(ctx);
+		rotate_buffers(ctx->buffer, 4);
 	}
 	for (size_t l = 0; l < 16; l++)
 	{
@@ -101,7 +91,7 @@ void md5rounds(t_MD5Context *ctx, const uint32_t *X)
 						rotateLeft(ctx->buffer[A] +
 						I(ctx->buffer[B], ctx->buffer[C],ctx->buffer[D]) +
 						X[(l * 7) % 16] + T[l + 48], S[l + 48]);
-		rotate_buffers(ctx);
+		rotate_buffers(ctx->buffer, 4);
 	}
 	ctx->buffer[A] += AA;
 	ctx->buffer[B] += BB;
@@ -149,29 +139,6 @@ void	md5(t_MD5Context *ctx, char *s, int flags, size_t l)
 	}
 }
 
-size_t bitsToAdd(size_t len)
-{
-	size_t bits = len * 8;
-	size_t bits_to_add;
-
-	if (!len)
-		bits_to_add = 448;
-	else
-	{
-		bits_to_add = ((bits + 511) - ((bits + 511) % 512)) - len * 8;
-		if (bits_to_add % 512 == 0)
-			bits_to_add = 448;
-		else
-		{
-			if (bits_to_add <= 64)
-				bits_to_add = 448 + bits_to_add;
-			else
-				bits_to_add = bits_to_add - 64;
-		}
-	}
-	return bits_to_add;
-}
-
 void	md5append(t_MD5Context *ctx, int flags)
 {
 	size_t		len;
@@ -205,6 +172,38 @@ void	md5append(t_MD5Context *ctx, int flags)
 	full_message = offset = NULL;
 }
 
+void	md5_readinput(t_hash *to_digest, t_MD5Context *ctx, int fd)
+{
+	char    buff[BUFFER_SIZE + 1];
+	ssize_t nb_read;
+	int     start = 1;
+
+	MD5ctx_init(ctx);
+	ft_memset(buff, 0, BUFFER_SIZE + 1);
+	while ((nb_read = read(fd, buff, BUFFER_SIZE)) >= 0)
+	{
+		(void)(!(to_digest->flags & e_file) && !(to_digest->flags & e_q) && start == 1 && (to_digest->flags & e_p) && ft_printf("(\""));
+		(void)(!(to_digest->flags & e_file) && !(to_digest->flags & e_q) && (to_digest->flags & e_p) && (start = 0));
+		buff[nb_read] = 0;
+		(void)(!(to_digest->flags & e_file) && !(to_digest->flags & e_q) && !start && (to_digest->flags & e_p) && ft_printf("%s", buff));
+		md5(ctx, buff, to_digest->flags, nb_read);
+		if (nb_read == 0)
+			break;
+		ft_memset(buff, 0, BUFFER_SIZE + 1);
+	}
+	if (nb_read == -1)
+	{
+		error("ft_ssl: read: ", errno, FALSE);
+		clean_opt_hash(to_digest);
+		exit(1);
+	}
+	else
+	{
+		md5append(ctx, to_digest->flags);
+		(void)(!(to_digest->flags & e_file) && !(to_digest->flags & e_q) && !start && (to_digest->flags & e_p) && ft_printf("\") = "));
+	}
+}
+
 uint32_t F(uint32_t X, uint32_t Y, uint32_t Z)
 {
 	return ((X & Y) | (~X & Z));
@@ -223,9 +222,4 @@ uint32_t H(uint32_t X, uint32_t Y, uint32_t Z)
 uint32_t I(uint32_t X, uint32_t Y, uint32_t Z)
 {
 	return (Y ^ (X | ~Z));
-}
-
-uint32_t rotateLeft(uint32_t x, uint32_t n)
-{
-	return (x << n) | (x >> (32 - n));
 }

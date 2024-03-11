@@ -4,41 +4,9 @@
 
 #include "ft_ssl.h"
 
-static void md5_readinput(t_md5 *to_digest, t_MD5Context *ctx, int fd)
-{
-	char    buff[BUFFER_SIZE + 1];
-	ssize_t nb_read;
-	int     start = 1;
-
-	MD5ctx_init(ctx);
-	ft_memset(buff, 0, BUFFER_SIZE + 1);
-	while ((nb_read = read(fd, buff, BUFFER_SIZE)) >= 0)
-	{
-		(void)(!(to_digest->flags & e_file) && !(to_digest->flags & e_q) && start == 1 && (to_digest->flags & e_p) && ft_printf("(\""));
-		(void)(!(to_digest->flags & e_file) && !(to_digest->flags & e_q) && (to_digest->flags & e_p) && (start = 0));
-		buff[nb_read] = 0;
-		(void)(!(to_digest->flags & e_file) && !(to_digest->flags & e_q) && !start && (to_digest->flags & e_p) && ft_printf("%s", buff));
-		md5(ctx, buff, to_digest->flags, nb_read);
-		if (nb_read == 0)
-			break;
-		ft_memset(buff, 0, BUFFER_SIZE + 1);
-	}
-	if (nb_read == -1)
-	{
-		error("ft_ssl: read: ", errno, FALSE);
-		clean_opt_md5(to_digest);
-		exit(1);
-	}
-	else
-	{
-		md5append(ctx, to_digest->flags);
-		(void)(!(to_digest->flags & e_file) && !(to_digest->flags & e_q) && !start && (to_digest->flags & e_p) && ft_printf("\") = "));
-	}
-}
-
 void    *do_md5(void *data)
 {
-	t_md5			*to_digest = (t_md5 *)data;
+	t_hash			*to_digest = (t_hash *)data;
 	t_MD5Context	ctx = {0};
 
 	if ((to_digest->flags & e_one_op) || (to_digest->flags & e_p) || (to_digest->flags & e_q))
@@ -47,7 +15,7 @@ void    *do_md5(void *data)
 		print_input_digest(to_digest->flags, ctx.digest, ctx.buffer, MD5_DIGEST_LGTH);
 		if (to_digest->flags & e_one_op)
 		{
-			clean_opt_md5(to_digest);
+			clean_opt_hash(to_digest);
 			return ("success one op");
 		}
 	}
@@ -73,21 +41,47 @@ void    *do_md5(void *data)
 		}
 		to_digest->files++;
 	}
-	clean_opt_md5(to_digest);
-	return ("success");
+	clean_opt_hash(to_digest);
+	return ("success md5");
 }
 
 void    *do_sha256(void *data)
 {
-	t_sha256	*to_digest = (t_sha256 *)data;
+	t_hash			*to_digest = (t_hash *)data;
+	t_sha256Context	ctx = {0};
 
+	if ((to_digest->flags & e_one_op) || (to_digest->flags & e_p) || (to_digest->flags & e_q))
+	{
+		sha256_readinput(to_digest, &ctx, STDIN_FILENO);
+		print_input_digest(to_digest->flags, ctx.digest, ctx.buffer, SHA256_DIGEST_LGTH);
+		if (to_digest->flags & e_one_op)
+		{
+			clean_opt_hash(to_digest);
+			return ("success one op");
+		}
+	}
 	if (to_digest->str)
-		printf("STR opt: %s\n", to_digest->str);
-	if (to_digest->stdinput)
-		printf("STDIN: %s\n", to_digest->stdinput);
-	printf("List of files:\n");
+	{
+//		MD5ctx_init(&ctx);
+//		md5(&ctx, to_digest->str, to_digest->flags, ft_strlen(to_digest->str));
+//		md5append(&ctx, to_digest->flags);
+		print_digest(to_digest->flags, ctx.digest, ctx.buffer, SHA256_DIGEST_LGTH, to_digest->str);
+	}
 	while (to_digest->files && *to_digest->files)
-		printf("%s\n", *to_digest->files++);
-	// TODO: put sha256 has here
-	return ("success");
+	{
+		int fd = open(*to_digest->files, O_RDONLY);
+
+		if (fd == -1)
+			ft_fprintf(2, "ft_ssl: md5: %s: No such file or directory\n", *to_digest->files);
+		else
+		{
+			to_digest->flags |= e_file;
+			sha256_readinput(to_digest, &ctx, fd);
+			print_digest(to_digest->flags, ctx.digest, ctx.buffer, SHA256_DIGEST_LGTH, *to_digest->files);
+			close(fd);
+		}
+		to_digest->files++;
+	}
+	clean_opt_hash(to_digest);
+	return ("success sha256");
 }

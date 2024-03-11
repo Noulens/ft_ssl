@@ -15,6 +15,7 @@ SRCS		=	$(addprefix src/,						\
 					$(addprefix core/,		md5.c		\
 											sha256.c	\
 											hash.c		\
+											common.c	\
 											parse.c)	\
 					$(addprefix tools/,		print.c		\
 											readata.c	\

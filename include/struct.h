@@ -11,6 +11,7 @@ typedef uint64_t	dword;
 typedef uint16_t	dbyte;
 
 # define MD5_DIGEST_LGTH 16
+# define SHA256_DIGEST_LGTH 64
 
 typedef union u_check_endian
 {
@@ -20,10 +21,10 @@ typedef union u_check_endian
 
 typedef enum u_initialization_vector
 {
-	A = 0,
-	B = 1,
-	C = 2,
-	D = 3
+	A,
+	B,
+	C,
+	D,
 }	t_iv;
 
 typedef enum e_flags
@@ -49,14 +50,6 @@ typedef union u_dword
 	unsigned char b[8];
 }   t_dword;
 
-typedef struct s_opt_md5
-{
-	int		flags;
-	char	*stdinput;
-	char 	*str;
-	char 	**files;
-}	t_md5;
-
 typedef struct s_md5ctx
 {
 	uint64_t	size;       // Size of input in bytes
@@ -66,13 +59,21 @@ typedef struct s_md5ctx
 	uint8_t		digest[MD5_DIGEST_LGTH];   // Result of algorithm
 }	t_MD5Context;
 
-typedef struct s_opt_sha256
+typedef struct s_sha256ctx
+{
+	uint64_t	size;       // Size of input in bytes
+	uint32_t	buffer[8];  // Current accumulation of hash
+	uint8_t		input[64];  // Input to be used in the next step
+	size_t      final_len;  // len of final input
+	uint8_t		digest[SHA256_DIGEST_LGTH];   // Result of algorithm
+}	t_sha256Context;
+
+typedef struct s_opt_hash
 {
 	int		flags;
-	char	*stdinput;
 	char 	*str;
 	char 	**files;
-}	t_sha256;
+}	t_hash;
 
 typedef void	*(*t_func_parse)(int ac, char **av);
 typedef void	*(*t_func_do)(void *);

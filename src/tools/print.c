@@ -21,8 +21,8 @@ void	put_hex(unsigned long digest)
 		digest /= 16;
 		i++;
 	}
-	ft_putchar_fd(tab[1], 1);
-	ft_putchar_fd(tab[0], 1);
+	ft_putchar_fd((char)tab[1], 1);
+	ft_putchar_fd((char)tab[0], 1);
 }
 
 

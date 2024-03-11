@@ -23,17 +23,18 @@
 void		*do_md5(void *to_digest);
 void		*do_sha256(void *to_digest);
 void		error(char *msg, int error_code, int must_exit);
-void	   	*md5parser(int ac, char **av);
-void		*sha256parser(int ac, char **av);
+void	   	*HashParser(int ac, char **av);
 void		print_usage();
-void		read_stdin(char **stdinput);
 t_parsed	parse(int ac, char **av);
-void		clean_opt_md5(t_md5 *to_clean);
-void		clean_opt_sha256(t_sha256 *to_clean);
+void		clean_opt_hash(t_hash *to_clean);
 uint32_t	readWord(uint32_t data, int opt);
 uint64_t	readXWord(uint64_t data, int opt);
 void		reverseEndiannessArray32(uint32_t *array, size_t size);
 void		reverseEndiannessArray64(uint64_t *array, size_t size);
+size_t		bitsToAdd(size_t len);
+void		rotate_buffers(uint32_t *buffer, size_t len);
+uint32_t	rotateRight(uint32_t x, uint32_t n);
+uint32_t	rotateLeft(uint32_t x, uint32_t n);
 
 /*
  * print function
@@ -50,19 +51,24 @@ uint32_t	F(uint32_t X, uint32_t Y, uint32_t Z);
 uint32_t	G(uint32_t X, uint32_t Y, uint32_t Z);
 uint32_t	H(uint32_t X, uint32_t Y, uint32_t Z);
 uint32_t	I(uint32_t X, uint32_t Y, uint32_t Z);
-uint32_t	rotateLeft(uint32_t x, uint32_t n);
-void		initialize_ABCD(uint32_t *A, uint32_t *B, uint32_t *C, uint32_t *D);
 void		md5(t_MD5Context *ctx, char *s, int flags, size_t l);
 void		MD5ctx_init(t_MD5Context *ctx);
 void		md5append(t_MD5Context *ctx, int flags);
+void		md5_readinput(t_hash *to_digest, t_MD5Context *ctx, int fd);
+
+/*
+ * sha256 functions
+ */
+void		sha256_readinput(t_hash *to_digest, t_sha256Context *ctx, int fd);
+
 
 /*
  * global variable for toolbox
  */
 static const t_parsed	g_parsed[] =
 {
-	{"md5", NULL, e_is_hash, md5parser, do_md5},
-	{"sha256", NULL, e_is_hash, sha256parser, do_sha256},
+	{"md5", NULL, e_is_hash, HashParser, do_md5},
+	{"sha256", NULL, e_is_hash, HashParser, do_sha256},
 	{0},
 };
 
