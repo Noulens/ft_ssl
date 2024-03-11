@@ -39,14 +39,29 @@ static const uint32_t Initial[8] =
 	0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19
 };
 
+void	initSha256Ctx(t_sha256Context *ctx, int opt)
+{
+	(void)opt;
+	ctx->buffer[A] = Initial[A];
+	ctx->buffer[B] = Initial[B];
+	ctx->buffer[C] = Initial[C];
+	ctx->buffer[D] = Initial[D];
+	ctx->buffer[E] = Initial[A];
+	ctx->buffer[F] = Initial[B];
+	ctx->buffer[G] = Initial[C];
+	ctx->buffer[H] = Initial[D];
+	ctx->size = 0x0;
+	ft_memset(ctx->digest, 0, SHA256_DIGEST_LGTH);
+	ft_memset(ctx->input, 0, 64);
+}
+
 void	sha256_readinput(t_hash *to_digest, t_sha256Context *ctx, int fd)
 {
 	char    buff[BUFFER_SIZE + 1];
 	ssize_t nb_read;
 	int     start = 1;
 
-	(void)ctx;
-//	MD5ctx_init(ctx);
+	initSha256Ctx(ctx, to_digest->flags);
 	ft_memset(buff, 0, BUFFER_SIZE + 1);
 	while ((nb_read = read(fd, buff, BUFFER_SIZE)) >= 0)
 	{
@@ -54,7 +69,7 @@ void	sha256_readinput(t_hash *to_digest, t_sha256Context *ctx, int fd)
 		(void)(!(to_digest->flags & e_file) && !(to_digest->flags & e_q) && (to_digest->flags & e_p) && (start = 0));
 		buff[nb_read] = 0;
 		(void)(!(to_digest->flags & e_file) && !(to_digest->flags & e_q) && !start && (to_digest->flags & e_p) && ft_printf("%s", buff));
-//		md5(ctx, buff, to_digest->flags, nb_read);
+		sha256(ctx, buff, to_digest->flags, nb_read);
 		if (nb_read == 0)
 			break;
 		ft_memset(buff, 0, BUFFER_SIZE + 1);
@@ -69,6 +84,16 @@ void	sha256_readinput(t_hash *to_digest, t_sha256Context *ctx, int fd)
 	{
 //		md5append(ctx, to_digest->flags);
 		(void)(!(to_digest->flags & e_file) && !(to_digest->flags & e_q) && !start && (to_digest->flags & e_p) && ft_printf("\") = "));
+	}
+}
+
+void	sha256(t_sha256Context *ctx, char *s, int flags, size_t len)
+{
+	uint32_t	W[64];
+
+	if (s && len)
+	{
+
 	}
 }
 

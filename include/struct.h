@@ -15,8 +15,8 @@ typedef uint16_t	dbyte;
 
 typedef union u_check_endian
 {
-	unsigned long     i;
-	char    bytes[4];
+	unsigned long	i;
+	char			bytes[4];
 }   t_check_endian;
 
 typedef enum u_initialization_vector
@@ -25,6 +25,10 @@ typedef enum u_initialization_vector
 	B,
 	C,
 	D,
+	E,
+	F,
+	G,
+	H
 }	t_iv;
 
 typedef enum e_flags

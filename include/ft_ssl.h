@@ -35,6 +35,7 @@ size_t		bitsToAdd(size_t len);
 void		rotate_buffers(uint32_t *buffer, size_t len);
 uint32_t	rotateRight(uint32_t x, uint32_t n);
 uint32_t	rotateLeft(uint32_t x, uint32_t n);
+void		splitInWords(int flags, uint32_t *X, const uint8_t *full_message);
 
 /*
  * print function
@@ -60,7 +61,8 @@ void		md5_readinput(t_hash *to_digest, t_MD5Context *ctx, int fd);
  * sha256 functions
  */
 void		sha256_readinput(t_hash *to_digest, t_sha256Context *ctx, int fd);
-
+void		initSha256Ctx(t_sha256Context *ctx, int opt);
+void		sha256(t_sha256Context *ctx, char *s, int flags, size_t len);
 
 /*
  * global variable for toolbox

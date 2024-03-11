@@ -99,18 +99,6 @@ void md5rounds(t_MD5Context *ctx, const uint32_t *X)
 	ctx->buffer[D] += DD;
 }
 
-void splitInWords(int flags, uint32_t *X, const uint8_t *full_message)
-{
-	ft_memset(X, 0x0, 16 * sizeof(uint32_t));
-	for (size_t j = 0; j < 16; j++)
-		X[j] |= full_message[j * 4]
-		        | (full_message[j * 4 + 1] << 8)
-		        | (full_message[j * 4 + 2] << 16)
-		        | (full_message[j * 4 + 3] << 24);
-	if (!(flags & e_little))
-		reverseEndiannessArray32(X, 16);
-}
-
 void	md5(t_MD5Context *ctx, char *s, int flags, size_t l)
 {
 	uint32_t		X[16];

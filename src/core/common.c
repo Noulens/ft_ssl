@@ -46,3 +46,13 @@ void	rotate_buffers(uint32_t *buffer, size_t len)
 		buffer[rotb] = buffer[rotb - 1];
 	buffer[A] = tmp;
 }
+
+void	splitInWords(int flags, uint32_t *X, const uint8_t *full_message)
+{
+	ft_memset(X, 0x0, 16 * sizeof(uint32_t));
+	for (size_t j = 0; j < 16; j++)
+		X[j] |= full_message[j * 4]
+				| (full_message[j * 4 + 1] << 8)
+				| (full_message[j * 4 + 2] << 16)
+				| (full_message[j * 4 + 3] << 24);
+}
