@@ -63,6 +63,13 @@ void		md5_readinput(t_hash *to_digest, t_MD5Context *ctx, int fd);
 void		sha256_readinput(t_hash *to_digest, t_sha256Context *ctx, int fd);
 void		initSha256Ctx(t_sha256Context *ctx, int opt);
 void		sha256(t_sha256Context *ctx, char *s, int flags, size_t len);
+uint32_t	CH(uint32_t x, uint32_t y, uint32_t z);
+uint32_t	MAJ(uint32_t x, uint32_t y, uint32_t z);
+uint32_t	BSIG0(uint32_t x);
+uint32_t	BSIG1(uint32_t x);
+uint32_t	SSIG0(uint32_t x);
+uint32_t	SSIG1(uint32_t x);
+
 
 /*
  * global variable for toolbox

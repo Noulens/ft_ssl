@@ -47,56 +47,56 @@ static const uint8_t PADDING[64] =
 void	MD5ctx_init(t_MD5Context *ctx)
 {
 	ctx->size = 0x0;
-	ctx->buffer[A] = ABCD[A];
-	ctx->buffer[B] = ABCD[B];
-	ctx->buffer[C] = ABCD[C];
-	ctx->buffer[D] = ABCD[D];
+	ctx->buffer[a] = ABCD[a];
+	ctx->buffer[b] = ABCD[b];
+	ctx->buffer[c] = ABCD[c];
+	ctx->buffer[d] = ABCD[d];
 	ft_memset(ctx->digest, 0, MD5_DIGEST_LGTH);
 	ft_memset(ctx->input, 0, 64);
 }
 
 void md5rounds(t_MD5Context *ctx, const uint32_t *X)
 {
-	uint32_t AA = ctx->buffer[A];
-	uint32_t BB = ctx->buffer[B];
-	uint32_t CC = ctx->buffer[C];
-	uint32_t DD = ctx->buffer[D];
+	uint32_t AA = ctx->buffer[a];
+	uint32_t BB = ctx->buffer[b];
+	uint32_t CC = ctx->buffer[c];
+	uint32_t DD = ctx->buffer[d];
 	for (size_t l = 0; l < 16; l++)
 	{
-		ctx->buffer[A] = ctx->buffer[B] +
-						rotateLeft(ctx->buffer[A] +
-						F(ctx->buffer[B], ctx->buffer[C],ctx->buffer[D]) +
+		ctx->buffer[a] = ctx->buffer[b] +
+						rotateLeft(ctx->buffer[a] +
+						F(ctx->buffer[b], ctx->buffer[c],ctx->buffer[d]) +
 						X[l] + T[l], S[l]);
 		rotate_buffers(ctx->buffer, 4);
 	}
 	for (size_t l = 0; l < 16; l++)
 	{
-		ctx->buffer[A] = ctx->buffer[B] +
-						rotateLeft(ctx->buffer[A] +
-						G(ctx->buffer[B], ctx->buffer[C],ctx->buffer[D]) +
+		ctx->buffer[a] = ctx->buffer[b] +
+						rotateLeft(ctx->buffer[a] +
+						G(ctx->buffer[b], ctx->buffer[c],ctx->buffer[d]) +
 						X[(l * 5 + 1) % 16] + T[l + 16], S[l + 16]);
 		rotate_buffers(ctx->buffer, 4);
 	}
 	for (size_t l = 0; l < 16; l++)
 	{
-		ctx->buffer[A] = ctx->buffer[B] +
-						rotateLeft(ctx->buffer[A] +
-						H(ctx->buffer[B], ctx->buffer[C],ctx->buffer[D]) +
+		ctx->buffer[a] = ctx->buffer[b] +
+						rotateLeft(ctx->buffer[a] +
+						H(ctx->buffer[b], ctx->buffer[c],ctx->buffer[d]) +
 						X[(l * 3 + 5) % 16] + T[l + 32], S[l + 32]);
 		rotate_buffers(ctx->buffer, 4);
 	}
 	for (size_t l = 0; l < 16; l++)
 	{
-		ctx->buffer[A] = ctx->buffer[B] +
-						rotateLeft(ctx->buffer[A] +
-						I(ctx->buffer[B], ctx->buffer[C],ctx->buffer[D]) +
+		ctx->buffer[a] = ctx->buffer[b] +
+						rotateLeft(ctx->buffer[a] +
+						I(ctx->buffer[b], ctx->buffer[c],ctx->buffer[d]) +
 						X[(l * 7) % 16] + T[l + 48], S[l + 48]);
 		rotate_buffers(ctx->buffer, 4);
 	}
-	ctx->buffer[A] += AA;
-	ctx->buffer[B] += BB;
-	ctx->buffer[C] += CC;
-	ctx->buffer[D] += DD;
+	ctx->buffer[a] += AA;
+	ctx->buffer[b] += BB;
+	ctx->buffer[c] += CC;
+	ctx->buffer[d] += DD;
 }
 
 void	md5(t_MD5Context *ctx, char *s, int flags, size_t l)
@@ -115,6 +115,7 @@ void	md5(t_MD5Context *ctx, char *s, int flags, size_t l)
 		len = l;
 		while (len >= 64)
 		{
+			ft_memset(X, 0x0, 16 * sizeof(uint32_t));
 			splitInWords(flags, X, offset);
 			md5rounds(ctx, X);
 			ctx->size += 64;
@@ -148,6 +149,7 @@ void	md5append(t_MD5Context *ctx, int flags)
 	for (size_t i = 0; i < len; i += 64)
 	{
 		offset = full_message + i;
+		ft_memset(X, 0x0, 16 * sizeof(uint32_t));
 		splitInWords(flags, X, offset);
 		if (i == len - 64)
 		{

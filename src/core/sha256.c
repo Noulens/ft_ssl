@@ -39,20 +39,35 @@ static const uint32_t Initial[8] =
 	0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19
 };
 
+static const uint8_t PADDING[64] =
+{
+	0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+};
+
 void	initSha256Ctx(t_sha256Context *ctx, int opt)
 {
 	(void)opt;
-	ctx->buffer[A] = Initial[A];
-	ctx->buffer[B] = Initial[B];
-	ctx->buffer[C] = Initial[C];
-	ctx->buffer[D] = Initial[D];
-	ctx->buffer[E] = Initial[A];
-	ctx->buffer[F] = Initial[B];
-	ctx->buffer[G] = Initial[C];
-	ctx->buffer[H] = Initial[D];
+	ctx->buffer[a] = Initial[a];
+	ctx->buffer[b] = Initial[b];
+	ctx->buffer[c] = Initial[c];
+	ctx->buffer[d] = Initial[d];
+	ctx->buffer[e] = Initial[e];
+	ctx->buffer[f] = Initial[f];
+	ctx->buffer[g] = Initial[g];
+	ctx->buffer[h] = Initial[h];
 	ctx->size = 0x0;
 	ft_memset(ctx->digest, 0, SHA256_DIGEST_LGTH);
 	ft_memset(ctx->input, 0, 64);
+}
+
+void	finishMsgSchedule(uint32_t  *W)
+{
+	for (size_t t = 16; t < 64; t++)
+	{
+		W[t] = SSIG1(W[t - 2]) +
+	}
 }
 
 void	sha256_readinput(t_hash *to_digest, t_sha256Context *ctx, int fd)
@@ -87,13 +102,69 @@ void	sha256_readinput(t_hash *to_digest, t_sha256Context *ctx, int fd)
 	}
 }
 
-void	sha256(t_sha256Context *ctx, char *s, int flags, size_t len)
+void	sha256rounds(t_sha256Context *ctx, uint32_t *W)
+{
+
+}
+
+void	sha256append(t_sha256Context *ctx, int flags)
+{
+	size_t		len;
+	uint32_t	W[64];
+	size_t      bits_to_add;
+	uint8_t     *full_message = NULL;
+	uint8_t     *offset = NULL;
+
+	bits_to_add = bitsToAdd(ctx->final_len);
+	full_message = (uint8_t *)malloc(ctx->final_len + bits_to_add / 8 + sizeof(uint64_t) + 1);
+	if (!full_message)
+		error("sha256 func", errno, TRUE);
+	full_message[ctx->final_len + bits_to_add / 8 + 8] = 0;
+	ft_memcpy(full_message, ctx->input, ctx->final_len);
+	ft_memcpy(full_message + ctx->final_len, PADDING, bits_to_add / 8);
+	//  TODO: endianness
+//	if (!(flags & e_little))
+//		reverseEndiannessArray64(&ctx->size, 1);
+	len = ctx->final_len + bits_to_add / 8 + sizeof(uint64_t);
+	for (size_t i = 0; i < len; i += 64)
+	{
+		offset = full_message + i;
+		ft_memset(W, 0x0, 64 * sizeof(uint32_t));
+		splitInWords(flags, W, offset);
+		if (i == len - 64)
+		{
+			W[14] = (uint32_t)(ctx->size * 8);
+			W[15] = (uint32_t)((ctx->size * 8) >> 32);
+		}
+		sha256rounds(ctx, W);
+	}
+	free(full_message);
+	full_message = offset = NULL;
+}
+
+void	sha256(t_sha256Context *ctx, char *s, int flags, size_t l)
 {
 	uint32_t	W[64];
+	uint8_t		*offset = NULL;
+	size_t		len;
 
+	offset = (uint8_t *)s;
+	len = l;
 	if (s && len)
 	{
-
+		while (len <= 64)
+		{
+			ft_memset(W, 0x0, 64 * sizeof(uint32_t));
+			splitInWords(flags, W, offset);
+			finishMsgSchedule(W);
+			sha256rounds(ctx, W);
+			ctx->size += 64;
+			offset += 64;
+			len -= 64;
+		}
+		ctx->size += len;
+		ctx->final_len = len;
+		ft_memcpy(ctx->input, offset, len);
 	}
 }
 

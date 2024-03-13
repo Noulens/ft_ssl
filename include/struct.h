@@ -21,14 +21,14 @@ typedef union u_check_endian
 
 typedef enum u_initialization_vector
 {
-	A,
-	B,
-	C,
-	D,
-	E,
-	F,
-	G,
-	H
+	a,
+	b,
+	c,
+	d,
+	e,
+	f,
+	g,
+	h
 }	t_iv;
 
 typedef enum e_flags
