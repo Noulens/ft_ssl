@@ -47,18 +47,18 @@ inline void reverseEndiannessArray64(uint64_t *array, size_t size)
 	}
 }
 
-inline uint32_t readWord(const uint32_t data, const int opt)
+inline uint32_t readWord(const uint32_t data, const int little)
 {
 	uint32_t res = data;
-	if (!(opt & e_little))
+	if (!little)
 		reverseEndian(&res, sizeof(uint32_t));
 	return res;
 }
 
-inline uint64_t readXWord(const uint64_t data, const int opt)
+inline uint64_t readXWord(const uint64_t data, const int little)
 {
 	uint64_t res = data;
-	if (!(opt & e_little))
+	if (!little)
 		reverseEndian(&res, sizeof(uint64_t));
 	return res;
 }

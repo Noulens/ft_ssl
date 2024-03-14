@@ -44,7 +44,6 @@ uint32_t	mod_add(uint32_t a, uint32_t b);
 
 void		print_digest(int opt, uint8_t *digest, const uint32_t *buffer, size_t len, char *str);
 void        print_input_digest(int opt, uint8_t *digest, const uint32_t *buffer, size_t len);
-void        print_full_message(uint8_t *full, size_t len);
 
 /*
  * md5 functions

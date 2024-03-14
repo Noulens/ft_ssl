@@ -49,6 +49,15 @@ static const uint8_t PADDING[64] =
 void	initSha256Ctx(t_sha256Context *ctx, int opt)
 {
 	(void)opt;
+//	ctx->buffer[a] = readWord(Initial[a], (opt & e_little) ? FALSE : TRUE);
+//	ctx->buffer[b] = readWord(Initial[b], (opt & e_little) ? FALSE : TRUE);
+//	ctx->buffer[c] = readWord(Initial[c], (opt & e_little) ? FALSE : TRUE);
+//	ctx->buffer[d] = readWord(Initial[d], (opt & e_little) ? FALSE : TRUE);
+//	ctx->buffer[e] = readWord(Initial[e], (opt & e_little) ? FALSE : TRUE);
+//	ctx->buffer[f] = readWord(Initial[f], (opt & e_little) ? FALSE : TRUE);
+//	ctx->buffer[g] = readWord(Initial[g], (opt & e_little) ? FALSE : TRUE);
+//	ctx->buffer[h] = readWord(Initial[h], (opt & e_little) ? FALSE : TRUE);
+
 	ctx->buffer[a] = Initial[a];
 	ctx->buffer[b] = Initial[b];
 	ctx->buffer[c] = Initial[c];
@@ -100,10 +109,21 @@ void	sha256_readinput(t_hash *to_digest, t_sha256Context *ctx, int fd)
 	}
 }
 
-void	sha256rounds(t_sha256Context *ctx, const uint32_t *W)
+void	sha256rounds(t_sha256Context *ctx, const uint32_t *W, int opt)
 {
+	(void)opt;
 	uint32_t	T1;
 	uint32_t	T2;
+	uint32_t	bob[8] = {0};
+//	uint32_t	A = readWord(ctx->buffer[a], (opt & e_little) ? FALSE : TRUE);
+//	uint32_t	B = readWord(ctx->buffer[b], (opt & e_little) ? FALSE : TRUE);
+//	uint32_t	C = readWord(ctx->buffer[c], (opt & e_little) ? FALSE : TRUE);
+//	uint32_t	D = readWord(ctx->buffer[d], (opt & e_little) ? FALSE : TRUE);
+//	uint32_t	E = readWord(ctx->buffer[e], (opt & e_little) ? FALSE : TRUE);
+//	uint32_t	F = readWord(ctx->buffer[f], (opt & e_little) ? FALSE : TRUE);
+//	uint32_t	G = readWord(ctx->buffer[g], (opt & e_little) ? FALSE : TRUE);
+//	uint32_t	H = readWord(ctx->buffer[h], (opt & e_little) ? FALSE : TRUE);
+
 	uint32_t	A = ctx->buffer[a];
 	uint32_t	B = ctx->buffer[b];
 	uint32_t	C = ctx->buffer[c];
@@ -115,7 +135,8 @@ void	sha256rounds(t_sha256Context *ctx, const uint32_t *W)
 
 	for (size_t t = 0; t < 64; t++)
 	{
-		T1 = h + BSIG1(E) + CH(E, F, G) + K[t] + W[t];
+		printf("\nITER %lu Const per iter: 0x%02x, W: 0x%02x\n", t + 1, K[t], W[t]);
+		T1 = H + BSIG1(E) + CH(E, F, G) + K[t] + W[t];
 		T2 = BSIG0(A) + MAJ(A, B, C);
 		H = G;
 		G = F;
@@ -125,6 +146,17 @@ void	sha256rounds(t_sha256Context *ctx, const uint32_t *W)
 		C = B;
 		B = A;
 		A = T1 + T2;
+		bob[0] = A;
+		bob[1] = B;
+		bob[2] = C;
+		bob[3] = D;
+		bob[4] = E;
+		bob[5] = F;
+		bob[6] = G;
+		bob[7] = H;
+		for (size_t i = 0; i < 8; i++)
+			printf("%02x ", bob[i]);
+		printf("\n");
 	}
 	ctx->buffer[a] += A;
 	ctx->buffer[b] += B;
@@ -155,17 +187,28 @@ void	sha256append(t_sha256Context *ctx, int flags)
 //	if (!(flags & e_little))
 //		reverseEndiannessArray64(&ctx->size, 1);
 	len = ctx->final_len + bits_to_add / 8 + sizeof(uint64_t);
+	ft_printf("LEN TOTAL in BITS: %ld\n", len);
 	for (size_t i = 0; i < len; i += 64)
 	{
 		offset = full_message + i;
 		ft_memset(W, 0x0, 64 * sizeof(uint32_t));
 		splitInWords(flags, W, offset);
+		reverseEndiannessArray32(W, 64);
 		if (i == len - 64)
 		{
-			W[14] = (uint32_t)(ctx->size * 8);
-			W[15] = (uint32_t)((ctx->size * 8) >> 32);
+			*(uint64_t *)(W + 14) = readXWord(ctx->size * 8, (flags & e_little) ? FALSE : TRUE);
+//			W[15] = (uint32_t)(ctx->size * 8);
+//			W[14] = (uint32_t)((ctx->size * 8) >> 32);
+			uint64_t bob = 0;
+			bob |= (uint64_t)W[15] << 32; // Shift the upper 32 bits by 32 positions
+			bob |= W[14]; // Combine with the lower 32 bits
+			reverseEndianness(&bob, sizeof(uint64_t));
+			printf("Appended len: %lu, total len %% 512 = %lu\n", bob / 8, (ctx->size * 8 + bits_to_add + 64) % 512);
 		}
-		sha256rounds(ctx, W);
+		finishMsgSchedule(W);
+		print_bits((uint8_t *)W, 64);
+		print_digest(flags, ctx->digest, ctx->buffer, SHA256_DIGEST_LGTH, (char *)ctx->input);
+		sha256rounds(ctx, W, flags);
 	}
 	free(full_message);
 	full_message = offset = NULL;
@@ -186,7 +229,7 @@ void	sha256(t_sha256Context *ctx, char *s, int flags, size_t l)
 			ft_memset(W, 0x0, 64 * sizeof(uint32_t));
 			splitInWords(flags, W, offset);
 			finishMsgSchedule(W);
-			sha256rounds(ctx, W);
+			sha256rounds(ctx, W, flags);
 			ctx->size += 64;
 			offset += 64;
 			len -= 64;

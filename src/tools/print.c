@@ -81,7 +81,10 @@ void	print_digest(int opt, uint8_t *digest, const uint32_t *buffer, size_t len, 
 				return ;
 		}
 		for(unsigned int i = 0; i < len; ++i)
+		{
 			put_hex(digest[i]);
+		}
+
 	}
 	else if (!(opt & e_q))
 	{
