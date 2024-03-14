@@ -65,9 +65,7 @@ void	initSha256Ctx(t_sha256Context *ctx, int opt)
 void	finishMsgSchedule(uint32_t  *W)
 {
 	for (size_t t = 16; t < 64; t++)
-	{
-		W[t] = SSIG1(W[t - 2]) +
-	}
+		W[t] = SSIG1(W[t - 2]) + W[t - 7] + SSIG0(W[t - 15]) + W[t - 16];
 }
 
 void	sha256_readinput(t_hash *to_digest, t_sha256Context *ctx, int fd)
@@ -97,14 +95,45 @@ void	sha256_readinput(t_hash *to_digest, t_sha256Context *ctx, int fd)
 	}
 	else
 	{
-//		md5append(ctx, to_digest->flags);
+		sha256append(ctx, to_digest->flags);
 		(void)(!(to_digest->flags & e_file) && !(to_digest->flags & e_q) && !start && (to_digest->flags & e_p) && ft_printf("\") = "));
 	}
 }
 
-void	sha256rounds(t_sha256Context *ctx, uint32_t *W)
+void	sha256rounds(t_sha256Context *ctx, const uint32_t *W)
 {
+	uint32_t	T1;
+	uint32_t	T2;
+	uint32_t	A = ctx->buffer[a];
+	uint32_t	B = ctx->buffer[b];
+	uint32_t	C = ctx->buffer[c];
+	uint32_t	D = ctx->buffer[d];
+	uint32_t	E = ctx->buffer[e];
+	uint32_t	F = ctx->buffer[f];
+	uint32_t	G = ctx->buffer[g];
+	uint32_t	H = ctx->buffer[h];
 
+	for (size_t t = 0; t < 64; t++)
+	{
+		T1 = h + BSIG1(E) + CH(E, F, G) + K[t] + W[t];
+		T2 = BSIG0(A) + MAJ(A, B, C);
+		H = G;
+		G = F;
+		F = E;
+		E = D + T1;
+		D = C;
+		C = B;
+		B = A;
+		A = T1 + T2;
+	}
+	ctx->buffer[a] += A;
+	ctx->buffer[b] += B;
+	ctx->buffer[c] += C;
+	ctx->buffer[d] += D;
+	ctx->buffer[e] += E;
+	ctx->buffer[f] += F;
+	ctx->buffer[g] += G;
+	ctx->buffer[h] += H;
 }
 
 void	sha256append(t_sha256Context *ctx, int flags)
@@ -152,7 +181,7 @@ void	sha256(t_sha256Context *ctx, char *s, int flags, size_t l)
 	len = l;
 	if (s && len)
 	{
-		while (len <= 64)
+		while (len >= 64)
 		{
 			ft_memset(W, 0x0, 64 * sizeof(uint32_t));
 			splitInWords(flags, W, offset);

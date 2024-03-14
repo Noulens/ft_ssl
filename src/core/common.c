@@ -44,7 +44,7 @@ void	rotate_buffers(uint32_t *buffer, size_t len)
 	tmp = buffer[len - 1];
 	for (int rotb = len - 1; rotb > 0; rotb--)
 		buffer[rotb] = buffer[rotb - 1];
-	buffer[A] = tmp;
+	buffer[a] = tmp;
 }
 
 void	splitInWords(int flags, uint32_t *X, const uint8_t *full_message)
@@ -55,4 +55,14 @@ void	splitInWords(int flags, uint32_t *X, const uint8_t *full_message)
 				| (full_message[j * 4 + 1] << 8)
 				| (full_message[j * 4 + 2] << 16)
 				| (full_message[j * 4 + 3] << 24);
+}
+
+uint32_t	mod_add(uint32_t a, uint32_t b)
+{
+	uint32_t	sum;
+
+	sum = a + b;
+	if ( sum < a || sum < b)
+		sum -= UINT32_MAX;
+	return (sum);
 }

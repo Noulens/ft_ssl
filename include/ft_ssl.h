@@ -36,6 +36,7 @@ void		rotate_buffers(uint32_t *buffer, size_t len);
 uint32_t	rotateRight(uint32_t x, uint32_t n);
 uint32_t	rotateLeft(uint32_t x, uint32_t n);
 void		splitInWords(int flags, uint32_t *X, const uint8_t *full_message);
+uint32_t	mod_add(uint32_t a, uint32_t b);
 
 /*
  * print function
@@ -63,6 +64,7 @@ void		md5_readinput(t_hash *to_digest, t_MD5Context *ctx, int fd);
 void		sha256_readinput(t_hash *to_digest, t_sha256Context *ctx, int fd);
 void		initSha256Ctx(t_sha256Context *ctx, int opt);
 void		sha256(t_sha256Context *ctx, char *s, int flags, size_t len);
+void		sha256append(t_sha256Context *ctx, int flags);
 uint32_t	CH(uint32_t x, uint32_t y, uint32_t z);
 uint32_t	MAJ(uint32_t x, uint32_t y, uint32_t z);
 uint32_t	BSIG0(uint32_t x);

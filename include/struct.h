@@ -11,7 +11,7 @@ typedef uint64_t	dword;
 typedef uint16_t	dbyte;
 
 # define MD5_DIGEST_LGTH 16
-# define SHA256_DIGEST_LGTH 64
+# define SHA256_DIGEST_LGTH 32
 
 typedef union u_check_endian
 {

@@ -62,10 +62,24 @@ void	print_digest(int opt, uint8_t *digest, const uint32_t *buffer, size_t len, 
 	}
 	if (!(opt & e_r) && !(opt & e_q))
 	{
-		if (opt & e_file)
-			ft_printf("MD5 (%s) = ", str);
-		else
-			ft_printf("MD5 (\"%s\") = ", str);
+		switch (len)
+		{
+			case MD5_DIGEST_LGTH:
+				if (opt & e_file)
+					ft_printf("MD5 (%s) = ", str);
+				else
+					ft_printf("MD5 (\"%s\") = ", str);
+				break ;
+			case SHA256_DIGEST_LGTH:
+				if (opt & e_file)
+					ft_printf("SHA256 (%s) = ", str);
+				else
+					ft_printf("SHA256 (\"%s\") = ", str);
+				break ;
+			default:
+				ft_fprintf(2, "print: unknown len\n");
+				return ;
+		}
 		for(unsigned int i = 0; i < len; ++i)
 			put_hex(digest[i]);
 	}
