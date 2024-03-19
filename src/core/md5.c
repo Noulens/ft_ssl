@@ -166,12 +166,18 @@ void	md5_readinput(t_hash *to_digest, t_MD5Context *ctx, int fd)
 	ft_memset(buff, 0, BUFFER_SIZE + 1);
 	while ((nb_read = read(fd, buff, BUFFER_SIZE)) >= 0)
 	{
-		(void)(!(to_digest->flags & e_file) && !(to_digest->flags & e_q) && start == 1 && (to_digest->flags & e_p) && ft_printf("(\""));
-		(void)(!(to_digest->flags & e_file) && !(to_digest->flags & e_q) && (to_digest->flags & e_p) && (start = 0));
+		(void)(!(to_digest->flags & e_file) && !(to_digest->flags & e_q) && start == 1 && (to_digest->flags & e_p) && ft_printf("(\"") && (start = 0));
 		buff[nb_read] = 0;
 		md5(ctx, buff, nb_read);
 		if (nb_read && nb_read < BUFFER_SIZE && buff[nb_read - 1] == '\n')
-			buff[nb_read - 1] = 0;
+		{
+			for (size_t i = nb_read - 1; buff[i] == '\n'; i--)
+			{
+				buff[i] = 0;
+			}
+		}
+		if (!(to_digest->flags & e_file) && (to_digest->flags & e_p) && (to_digest->flags & e_q) && (to_digest->flags & e_r))
+			ft_printf("%s", buff);
 		(void)(!(to_digest->flags & e_file) && !(to_digest->flags & e_q) && !start && (to_digest->flags & e_p) && ft_printf("%s", buff));
 		if (nb_read == 0)
 			break;

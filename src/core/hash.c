@@ -9,7 +9,7 @@ void    *do_md5(void *data)
 	t_hash			*to_digest = (t_hash *)data;
 	t_MD5Context	ctx = {0};
 
-	if ((to_digest->flags & e_one_op) || (to_digest->flags & e_p) || (to_digest->flags & e_q))
+	if ((to_digest->flags & e_one_op) || (to_digest->flags & e_p) || (to_digest->flags & e_q) || (to_digest->flags & e_r))
 	{
 		md5_readinput(to_digest, &ctx, STDIN_FILENO);
 		print_input_digest(to_digest->flags, ctx.digest, ctx.buffer, MD5_DIGEST_LGTH);
@@ -31,7 +31,7 @@ void    *do_md5(void *data)
 		int fd = open(*to_digest->files, O_RDONLY);
 
 		if (fd == -1)
-			ft_fprintf(2, "ft_ssl: md5: %s: No such file or directory\n", *to_digest->files);
+			ft_fprintf(1, "ft_ssl: md5: %s: No such file or directory\n", *to_digest->files);
 		else
 		{
 			to_digest->flags |= e_file;
@@ -50,7 +50,7 @@ void    *do_sha256(void *data)
 	t_hash			*to_digest = (t_hash *)data;
 	t_sha256Context	ctx = {0};
 
-	if ((to_digest->flags & e_one_op) || (to_digest->flags & e_p) || (to_digest->flags & e_q))
+	if ((to_digest->flags & e_one_op) || (to_digest->flags & e_p) || (to_digest->flags & e_q) || (to_digest->flags & e_r))
 	{
 		sha256_readinput(to_digest, &ctx, STDIN_FILENO);
 		print_input_digest(to_digest->flags, ctx.digest, ctx.buffer, SHA256_DIGEST_LGTH);
@@ -72,7 +72,7 @@ void    *do_sha256(void *data)
 		int fd = open(*to_digest->files, O_RDONLY);
 
 		if (fd == -1)
-			ft_fprintf(2, "ft_ssl: md5: %s: No such file or directory\n", *to_digest->files);
+			ft_fprintf(1, "ft_ssl: md5: %s: No such file or directory\n", *to_digest->files);
 		else
 		{
 			to_digest->flags |= e_file;
