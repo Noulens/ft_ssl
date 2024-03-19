@@ -15,6 +15,9 @@
 # include <errno.h>
 # include "libft.h"
 # include "struct.h"
+# include <arpa/inet.h>
+# include <emmintrin.h>
+# include <tmmintrin.h>
 
 # ifndef BUFFER_SIZE
 # define BUFFER_SIZE 4096

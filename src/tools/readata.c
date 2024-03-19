@@ -28,7 +28,6 @@ static inline void reverseEndian(void *data, size_t size)
 			return;
 		}
 		default:
-			write(2, "Unknown size\n", 14);
 			return ;
 	}
 }

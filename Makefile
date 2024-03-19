@@ -24,7 +24,7 @@ SRCS		=	$(addprefix src/,						\
 
 OBJ			=	$(SRCS:%.c=$(BUILDIR)/%.o)
 
-CFLAGS		=	-Wall -Wextra -Werror -g
+CFLAGS		=	-Wall -Wextra -Werror -O3 -g
 
 LDFLAGS		=	$(LIBS)libft.a
 

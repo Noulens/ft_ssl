@@ -55,10 +55,10 @@ void	print_digest(int opt, uint8_t *digest, const uint32_t *buffer, size_t len, 
 {
 	for(unsigned int i = 0; i < len / 4; ++i)
 	{
-		digest[(i * 4) + 0] = (uint8_t)((buffer[i] & 0x000000FF));
-		digest[(i * 4) + 1] = (uint8_t)((buffer[i] & 0x0000FF00) >>  8);
-		digest[(i * 4) + 2] = (uint8_t)((buffer[i] & 0x00FF0000) >> 16);
-		digest[(i * 4) + 3] = (uint8_t)((buffer[i] & 0xFF000000) >> 24);
+		digest[(i * 4) + 0] = (uint8_t)((htonl(buffer[i]) & 0x000000FF));
+		digest[(i * 4) + 1] = (uint8_t)((htonl(buffer[i]) & 0x0000FF00) >>  8);
+		digest[(i * 4) + 2] = (uint8_t)((htonl(buffer[i]) & 0x00FF0000) >> 16);
+		digest[(i * 4) + 3] = (uint8_t)((htonl(buffer[i]) & 0xFF000000) >> 24);
 	}
 	if (!(opt & e_r) && !(opt & e_q))
 	{
@@ -74,7 +74,9 @@ void	print_digest(int opt, uint8_t *digest, const uint32_t *buffer, size_t len, 
 				if (opt & e_file)
 					ft_printf("SHA256 (%s) = ", str);
 				else
+				{
 					ft_printf("SHA256 (\"%s\") = ", str);
+				}
 				break ;
 			default:
 				ft_fprintf(2, "print: unknown len\n");
@@ -84,7 +86,6 @@ void	print_digest(int opt, uint8_t *digest, const uint32_t *buffer, size_t len, 
 		{
 			put_hex(digest[i]);
 		}
-
 	}
 	else if (!(opt & e_q))
 	{

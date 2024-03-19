@@ -4,6 +4,30 @@
 
 #include "ft_ssl.h"
 
+
+//ROTATE RIGHT 32 BITS NUMBER
+#define ROTRIGHT(a,b) ((a >> b) ^ (a << (32-(b))))
+
+//OPERATION TO CALCULATE CH
+#define CH(x,y,z) ((x & y) ^ (z & ~x))
+//OPERATION TO CALCULTATE MAJ
+#define MAJ(x,y,z) ((x & y) ^ (x & z) ^ (y & z))
+#define EP0(x) (ROTRIGHT(x,2) ^ ROTRIGHT(x,13) ^ ROTRIGHT(x,22))
+#define EP1(x) (ROTRIGHT(x,6) ^ ROTRIGHT(x,11) ^ ROTRIGHT(x,25))
+//OPERATION TO CALCULATE S0
+#define S0(x) (ROTRIGHT(x,7) ^ ROTRIGHT(x,18) ^ (x >> 3))
+//OPERATION TO CALCULATE S1
+#define S1(x) (ROTRIGHT(x,17) ^ ROTRIGHT(x,19) ^ (x >> 10))
+
+#define H0 0x6a09e667
+#define H1 0xbb67ae85
+#define H2 0x3c6ef372
+#define H3 0xa54ff53a
+#define H4 0x510e527f
+#define H5 0x9b05688c
+#define H6 0x1f83d9ab
+#define H7 0x5be0cd19
+
 /*
  * SHA-224 and SHA-256 use the same sequence of sixty-four constant
  * 32-bit words, K0, K1, ..., K63.  These words represent the first 32
@@ -33,11 +57,7 @@ static const uint32_t K[64] =
  * first 32 bits of the fractional parts of the square roots of the
  * first eight prime numbers.
  * */
-static const uint32_t Initial[8] =
-{
-	0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a,
-	0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19
-};
+
 
 static const uint8_t PADDING[64] =
 {
@@ -49,32 +69,18 @@ static const uint8_t PADDING[64] =
 void	initSha256Ctx(t_sha256Context *ctx, int opt)
 {
 	(void)opt;
-//	ctx->buffer[a] = readWord(Initial[a], (opt & e_little) ? FALSE : TRUE);
-//	ctx->buffer[b] = readWord(Initial[b], (opt & e_little) ? FALSE : TRUE);
-//	ctx->buffer[c] = readWord(Initial[c], (opt & e_little) ? FALSE : TRUE);
-//	ctx->buffer[d] = readWord(Initial[d], (opt & e_little) ? FALSE : TRUE);
-//	ctx->buffer[e] = readWord(Initial[e], (opt & e_little) ? FALSE : TRUE);
-//	ctx->buffer[f] = readWord(Initial[f], (opt & e_little) ? FALSE : TRUE);
-//	ctx->buffer[g] = readWord(Initial[g], (opt & e_little) ? FALSE : TRUE);
-//	ctx->buffer[h] = readWord(Initial[h], (opt & e_little) ? FALSE : TRUE);
 
-	ctx->buffer[a] = Initial[a];
-	ctx->buffer[b] = Initial[b];
-	ctx->buffer[c] = Initial[c];
-	ctx->buffer[d] = Initial[d];
-	ctx->buffer[e] = Initial[e];
-	ctx->buffer[f] = Initial[f];
-	ctx->buffer[g] = Initial[g];
-	ctx->buffer[h] = Initial[h];
+	ctx->buffer[0] = H0;
+	ctx->buffer[1] = H1;
+	ctx->buffer[2] = H2;
+	ctx->buffer[3] = H3;
+	ctx->buffer[4] = H4;
+	ctx->buffer[5] = H5;
+	ctx->buffer[6] = H6;
+	ctx->buffer[7] = H7;
 	ctx->size = 0x0;
 	ft_memset(ctx->digest, 0, SHA256_DIGEST_LGTH);
 	ft_memset(ctx->input, 0, 64);
-}
-
-void	finishMsgSchedule(uint32_t  *W)
-{
-	for (size_t t = 16; t < 64; t++)
-		W[t] = SSIG1(W[t - 2]) + W[t - 7] + SSIG0(W[t - 15]) + W[t - 16];
 }
 
 void	sha256_readinput(t_hash *to_digest, t_sha256Context *ctx, int fd)
@@ -109,21 +115,40 @@ void	sha256_readinput(t_hash *to_digest, t_sha256Context *ctx, int fd)
 	}
 }
 
-void	sha256rounds(t_sha256Context *ctx, const uint32_t *W, int opt)
+void	sha256rounds(t_sha256Context *ctx, uint8_t *W, int opt)
 {
+	uint32_t m[64] __attribute__((aligned(16))) = {};
+
+//	const __m128i shuffle_mask = _mm_set_epi8(12, 13, 14, 15, 8, 9, 10, 11, 4, 5, 6, 7, 0, 1, 2, 3);
+	ft_printf("round\n");
+	if (opt)
+	{
+		ft_printf("here %ld\n", ctx->size);
+		uint64_t	bitLen = ctx->size * 8;
+
+		W[56] = (bitLen >> 56);
+		W[57] = (bitLen >> 48);
+		W[58] = (bitLen >> 40);
+		W[59] = (bitLen >> 32);
+		W[60] = (bitLen >> 24);
+		W[61] = (bitLen >> 16);
+		W[62] = (bitLen >> 8);
+		W[63] = bitLen;
+
+//		uint64_t bob = 0;
+//		bob |= (uint64_t)W[14] << 32; // Shift the upper 32 bits by 32 positions
+//		bob |= W[15]; // Combine with the lower 32 bits
+//		printf("Appended len: %lu, total len %% 512 = %lu\n", bob / 8, (ctx->size * 8 + bits_to_add + 64) % 512);
+	}
+
+	uint32_t i = 0;
+	for (uint32_t j = 0; i < 16; ++i, j += 4)
+		m[i] = W[j] << 24 | W[j + 1] << 16 | W[j + 2] << 8 | W[j + 3];
+
+
 	(void)opt;
 	uint32_t	T1;
 	uint32_t	T2;
-	uint32_t	bob[8] = {0};
-//	uint32_t	A = readWord(ctx->buffer[a], (opt & e_little) ? FALSE : TRUE);
-//	uint32_t	B = readWord(ctx->buffer[b], (opt & e_little) ? FALSE : TRUE);
-//	uint32_t	C = readWord(ctx->buffer[c], (opt & e_little) ? FALSE : TRUE);
-//	uint32_t	D = readWord(ctx->buffer[d], (opt & e_little) ? FALSE : TRUE);
-//	uint32_t	E = readWord(ctx->buffer[e], (opt & e_little) ? FALSE : TRUE);
-//	uint32_t	F = readWord(ctx->buffer[f], (opt & e_little) ? FALSE : TRUE);
-//	uint32_t	G = readWord(ctx->buffer[g], (opt & e_little) ? FALSE : TRUE);
-//	uint32_t	H = readWord(ctx->buffer[h], (opt & e_little) ? FALSE : TRUE);
-
 	uint32_t	A = ctx->buffer[a];
 	uint32_t	B = ctx->buffer[b];
 	uint32_t	C = ctx->buffer[c];
@@ -133,11 +158,17 @@ void	sha256rounds(t_sha256Context *ctx, const uint32_t *W, int opt)
 	uint32_t	G = ctx->buffer[g];
 	uint32_t	H = ctx->buffer[h];
 
+	for (size_t t = 16; t < 64; t++)
+	{
+		m[t] = S1(m[t - 2]) + m[t - 7] + S0(m[t - 15]) + m[t - 16];
+//		printf("%.8x\n", m[t]);
+	}
+
 	for (size_t t = 0; t < 64; t++)
 	{
-		printf("\nITER %lu Const per iter: 0x%02x, W: 0x%02x\n", t + 1, K[t], W[t]);
-		T1 = H + BSIG1(E) + CH(E, F, G) + K[t] + W[t];
-		T2 = BSIG0(A) + MAJ(A, B, C);
+//		printf("round %zu, w = %.8x, k = %.8x\n", t + 1, m[t], K[t]);
+		T1 = H + EP1(E) + CH(E, F, G) + K[t] + m[t];
+		T2 = EP0(A) + MAJ(A, B, C);
 		H = G;
 		G = F;
 		F = E;
@@ -146,17 +177,7 @@ void	sha256rounds(t_sha256Context *ctx, const uint32_t *W, int opt)
 		C = B;
 		B = A;
 		A = T1 + T2;
-		bob[0] = A;
-		bob[1] = B;
-		bob[2] = C;
-		bob[3] = D;
-		bob[4] = E;
-		bob[5] = F;
-		bob[6] = G;
-		bob[7] = H;
-		for (size_t i = 0; i < 8; i++)
-			printf("%02x ", bob[i]);
-		printf("\n");
+//		printf("%.8x %.8x %.8x %.8x %.8x %.8x %.8x %.8x\n", A, B, C, D, E, F, G, H);
 	}
 	ctx->buffer[a] += A;
 	ctx->buffer[b] += B;
@@ -171,11 +192,12 @@ void	sha256rounds(t_sha256Context *ctx, const uint32_t *W, int opt)
 void	sha256append(t_sha256Context *ctx, int flags)
 {
 	size_t		len;
-	uint32_t	W[64];
 	size_t      bits_to_add;
 	uint8_t     *full_message = NULL;
 	uint8_t     *offset = NULL;
 
+
+	(void) flags;
 	bits_to_add = bitsToAdd(ctx->final_len);
 	full_message = (uint8_t *)malloc(ctx->final_len + bits_to_add / 8 + sizeof(uint64_t) + 1);
 	if (!full_message)
@@ -183,32 +205,15 @@ void	sha256append(t_sha256Context *ctx, int flags)
 	full_message[ctx->final_len + bits_to_add / 8 + 8] = 0;
 	ft_memcpy(full_message, ctx->input, ctx->final_len);
 	ft_memcpy(full_message + ctx->final_len, PADDING, bits_to_add / 8);
-	//  TODO: endianness
-//	if (!(flags & e_little))
-//		reverseEndiannessArray64(&ctx->size, 1);
 	len = ctx->final_len + bits_to_add / 8 + sizeof(uint64_t);
 	ft_printf("LEN TOTAL in BITS: %ld\n", len);
+	printf("bits to add: %lu, total len %% 512 = %lu\n", bits_to_add, (ctx->size * 8 + bits_to_add + 64) % 512);
 	for (size_t i = 0; i < len; i += 64)
 	{
 		offset = full_message + i;
-		ft_memset(W, 0x0, 64 * sizeof(uint32_t));
-		splitInWords(flags, W, offset);
-		reverseEndiannessArray32(W, 64);
-		if (i == len - 64)
-		{
-			*(uint64_t *)(W + 14) = readXWord(ctx->size * 8, (flags & e_little) ? FALSE : TRUE);
-//			W[15] = (uint32_t)(ctx->size * 8);
-//			W[14] = (uint32_t)((ctx->size * 8) >> 32);
-			uint64_t bob = 0;
-			bob |= (uint64_t)W[15] << 32; // Shift the upper 32 bits by 32 positions
-			bob |= W[14]; // Combine with the lower 32 bits
-			reverseEndianness(&bob, sizeof(uint64_t));
-			printf("Appended len: %lu, total len %% 512 = %lu\n", bob / 8, (ctx->size * 8 + bits_to_add + 64) % 512);
-		}
-		finishMsgSchedule(W);
-		print_bits((uint8_t *)W, 64);
-		print_digest(flags, ctx->digest, ctx->buffer, SHA256_DIGEST_LGTH, (char *)ctx->input);
-		sha256rounds(ctx, W, flags);
+//		print_digest(flags, ctx->digest, ctx->buffer, SHA256_DIGEST_LGTH, (char *)ctx->input);
+		sha256rounds(ctx, offset, i == len - 64 ? TRUE : FALSE);
+//		print_bits((uint8_t *)W, 64);
 	}
 	free(full_message);
 	full_message = offset = NULL;
@@ -216,20 +221,17 @@ void	sha256append(t_sha256Context *ctx, int flags)
 
 void	sha256(t_sha256Context *ctx, char *s, int flags, size_t l)
 {
-	uint32_t	W[64];
 	uint8_t		*offset = NULL;
 	size_t		len;
 
+	(void)flags;
 	offset = (uint8_t *)s;
 	len = l;
 	if (s && len)
 	{
 		while (len >= 64)
 		{
-			ft_memset(W, 0x0, 64 * sizeof(uint32_t));
-			splitInWords(flags, W, offset);
-			finishMsgSchedule(W);
-			sha256rounds(ctx, W, flags);
+			sha256rounds(ctx, offset, FALSE);
 			ctx->size += 64;
 			offset += 64;
 			len -= 64;
@@ -238,34 +240,4 @@ void	sha256(t_sha256Context *ctx, char *s, int flags, size_t l)
 		ctx->final_len = len;
 		ft_memcpy(ctx->input, offset, len);
 	}
-}
-
-uint32_t	CH(uint32_t x, uint32_t y, uint32_t z)
-{
-	return ((x & y) ^ ((~x) & z));
-}
-
-uint32_t	MAJ(uint32_t x, uint32_t y, uint32_t z)
-{
-	return ((x & y) ^ (x & z) ^ (y & z));
-}
-
-uint32_t	BSIG0(uint32_t x)
-{
-	return (rotateRight(x, 2) ^ rotateRight(x, 13) ^ rotateRight(x, 22));
-}
-
-uint32_t	BSIG1(uint32_t x)
-{
-	return (rotateRight(x, 6) ^ rotateRight(x, 11) ^ rotateRight(x, 25));
-}
-
-uint32_t	SSIG0(uint32_t x)
-{
-	return (rotateRight(x, 7) ^ rotateRight(x, 18) ^ (x >> 3));
-}
-
-uint32_t	SSIG1(uint32_t x)
-{
-	return (rotateRight(x, 17) ^ rotateRight(x, 19) ^ (x >> 10));
 }
