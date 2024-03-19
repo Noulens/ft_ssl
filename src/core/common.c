@@ -47,9 +47,8 @@ void	rotate_buffers(uint32_t *buffer, size_t len)
 	buffer[a] = tmp;
 }
 
-void	splitInWords(int flags, uint32_t *X, const uint8_t *full_message)
+void	splitInWords(uint32_t *X, const uint8_t *full_message)
 {
-	(void)flags;
 	for (size_t j = 0; j < 16; j++)
 		X[j] |= full_message[j * 4]
 				| (full_message[j * 4 + 1] << 8)

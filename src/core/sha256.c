@@ -7,7 +7,6 @@
 
 //ROTATE RIGHT 32 BITS NUMBER
 #define ROTRIGHT(a,b) ((a >> b) ^ (a << (32-(b))))
-
 //OPERATION TO CALCULATE CH
 #define CH(x,y,z) ((x & y) ^ (z & ~x))
 //OPERATION TO CALCULTATE MAJ
@@ -96,8 +95,10 @@ void	sha256_readinput(t_hash *to_digest, t_sha256Context *ctx, int fd)
 		(void)(!(to_digest->flags & e_file) && !(to_digest->flags & e_q) && start == 1 && (to_digest->flags & e_p) && ft_printf("(\""));
 		(void)(!(to_digest->flags & e_file) && !(to_digest->flags & e_q) && (to_digest->flags & e_p) && (start = 0));
 		buff[nb_read] = 0;
+		sha256(ctx, buff, nb_read);
+		if (nb_read && nb_read < BUFFER_SIZE && buff[nb_read - 1] == '\n')
+			buff[nb_read - 1] = 0;
 		(void)(!(to_digest->flags & e_file) && !(to_digest->flags & e_q) && !start && (to_digest->flags & e_p) && ft_printf("%s", buff));
-		sha256(ctx, buff, to_digest->flags, nb_read);
 		if (nb_read == 0)
 			break;
 		ft_memset(buff, 0, BUFFER_SIZE + 1);
@@ -110,43 +111,16 @@ void	sha256_readinput(t_hash *to_digest, t_sha256Context *ctx, int fd)
 	}
 	else
 	{
-		sha256append(ctx, to_digest->flags);
-		(void)(!(to_digest->flags & e_file) && !(to_digest->flags & e_q) && !start && (to_digest->flags & e_p) && ft_printf("\") = "));
+		sha256append(ctx);
+		(void)(!(to_digest->flags & e_file) && !(to_digest->flags & e_q) && !start && (to_digest->flags & e_p) && ft_printf("\")= "));
 	}
 }
 
 void	sha256rounds(t_sha256Context *ctx, uint8_t *W, int opt)
 {
-	uint32_t m[64] __attribute__((aligned(16))) = {};
-
-//	const __m128i shuffle_mask = _mm_set_epi8(12, 13, 14, 15, 8, 9, 10, 11, 4, 5, 6, 7, 0, 1, 2, 3);
-	ft_printf("round\n");
-	if (opt)
-	{
-		ft_printf("here %ld\n", ctx->size);
-		uint64_t	bitLen = ctx->size * 8;
-
-		W[56] = (bitLen >> 56);
-		W[57] = (bitLen >> 48);
-		W[58] = (bitLen >> 40);
-		W[59] = (bitLen >> 32);
-		W[60] = (bitLen >> 24);
-		W[61] = (bitLen >> 16);
-		W[62] = (bitLen >> 8);
-		W[63] = bitLen;
-
-//		uint64_t bob = 0;
-//		bob |= (uint64_t)W[14] << 32; // Shift the upper 32 bits by 32 positions
-//		bob |= W[15]; // Combine with the lower 32 bits
-//		printf("Appended len: %lu, total len %% 512 = %lu\n", bob / 8, (ctx->size * 8 + bits_to_add + 64) % 512);
-	}
-
-	uint32_t i = 0;
-	for (uint32_t j = 0; i < 16; ++i, j += 4)
-		m[i] = W[j] << 24 | W[j + 1] << 16 | W[j + 2] << 8 | W[j + 3];
-
-
-	(void)opt;
+	uint32_t	m[64] __attribute__((aligned(16))) = {};
+	uint32_t	i = 0;
+	uint32_t	j = 0;
 	uint32_t	T1;
 	uint32_t	T2;
 	uint32_t	A = ctx->buffer[a];
@@ -158,15 +132,25 @@ void	sha256rounds(t_sha256Context *ctx, uint8_t *W, int opt)
 	uint32_t	G = ctx->buffer[g];
 	uint32_t	H = ctx->buffer[h];
 
-	for (size_t t = 16; t < 64; t++)
+	if (opt)
 	{
-		m[t] = S1(m[t - 2]) + m[t - 7] + S0(m[t - 15]) + m[t - 16];
-//		printf("%.8x\n", m[t]);
-	}
+		uint64_t	bitLen = ctx->size * 8;
 
+		W[56] = (bitLen >> 56);
+		W[57] = (bitLen >> 48);
+		W[58] = (bitLen >> 40);
+		W[59] = (bitLen >> 32);
+		W[60] = (bitLen >> 24);
+		W[61] = (bitLen >> 16);
+		W[62] = (bitLen >> 8);
+		W[63] = bitLen;
+	}
+	for (; i < 16; ++i, j += 4)
+		m[i] = W[j] << 24 | W[j + 1] << 16 | W[j + 2] << 8 | W[j + 3];
+	for (size_t t = 16; t < 64; t++)
+		m[t] = S1(m[t - 2]) + m[t - 7] + S0(m[t - 15]) + m[t - 16];
 	for (size_t t = 0; t < 64; t++)
 	{
-//		printf("round %zu, w = %.8x, k = %.8x\n", t + 1, m[t], K[t]);
 		T1 = H + EP1(E) + CH(E, F, G) + K[t] + m[t];
 		T2 = EP0(A) + MAJ(A, B, C);
 		H = G;
@@ -177,7 +161,6 @@ void	sha256rounds(t_sha256Context *ctx, uint8_t *W, int opt)
 		C = B;
 		B = A;
 		A = T1 + T2;
-//		printf("%.8x %.8x %.8x %.8x %.8x %.8x %.8x %.8x\n", A, B, C, D, E, F, G, H);
 	}
 	ctx->buffer[a] += A;
 	ctx->buffer[b] += B;
@@ -189,15 +172,13 @@ void	sha256rounds(t_sha256Context *ctx, uint8_t *W, int opt)
 	ctx->buffer[h] += H;
 }
 
-void	sha256append(t_sha256Context *ctx, int flags)
+void	sha256append(t_sha256Context *ctx)
 {
 	size_t		len;
 	size_t      bits_to_add;
 	uint8_t     *full_message = NULL;
 	uint8_t     *offset = NULL;
 
-
-	(void) flags;
 	bits_to_add = bitsToAdd(ctx->final_len);
 	full_message = (uint8_t *)malloc(ctx->final_len + bits_to_add / 8 + sizeof(uint64_t) + 1);
 	if (!full_message)
@@ -206,25 +187,20 @@ void	sha256append(t_sha256Context *ctx, int flags)
 	ft_memcpy(full_message, ctx->input, ctx->final_len);
 	ft_memcpy(full_message + ctx->final_len, PADDING, bits_to_add / 8);
 	len = ctx->final_len + bits_to_add / 8 + sizeof(uint64_t);
-	ft_printf("LEN TOTAL in BITS: %ld\n", len);
-	printf("bits to add: %lu, total len %% 512 = %lu\n", bits_to_add, (ctx->size * 8 + bits_to_add + 64) % 512);
 	for (size_t i = 0; i < len; i += 64)
 	{
 		offset = full_message + i;
-//		print_digest(flags, ctx->digest, ctx->buffer, SHA256_DIGEST_LGTH, (char *)ctx->input);
 		sha256rounds(ctx, offset, i == len - 64 ? TRUE : FALSE);
-//		print_bits((uint8_t *)W, 64);
 	}
 	free(full_message);
 	full_message = offset = NULL;
 }
 
-void	sha256(t_sha256Context *ctx, char *s, int flags, size_t l)
+void	sha256(t_sha256Context *ctx, char *s, size_t l)
 {
 	uint8_t		*offset = NULL;
 	size_t		len;
 
-	(void)flags;
 	offset = (uint8_t *)s;
 	len = l;
 	if (s && len)

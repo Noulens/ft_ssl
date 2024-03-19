@@ -4,7 +4,7 @@
 
 #include "ft_ssl.h"
 
-void	put_hex(unsigned long digest)
+static void	put_hex(unsigned long digest)
 {
 	uint8_t	hex_c;
 	uint8_t	tab[2] = {'0', '0'};
@@ -25,6 +25,33 @@ void	put_hex(unsigned long digest)
 	ft_putchar_fd((char)tab[0], 1);
 }
 
+int	set_digest(uint8_t *digest, const uint32_t *buffer, size_t len)
+{
+	switch (len)
+	{
+		case MD5_DIGEST_LGTH:
+			for (unsigned int i = 0; i < len / 4; ++i)
+			{
+				digest[(i * 4) + 0] = (uint8_t)(((buffer[i]) & 0x000000FF));
+				digest[(i * 4) + 1] = (uint8_t)(((buffer[i]) & 0x0000FF00) >>  8);
+				digest[(i * 4) + 2] = (uint8_t)(((buffer[i]) & 0x00FF0000) >> 16);
+				digest[(i * 4) + 3] = (uint8_t)(((buffer[i]) & 0xFF000000) >> 24);
+			}
+			return (0) ;
+		case SHA256_DIGEST_LGTH:
+			for (unsigned int i = 0; i < len / 4; ++i)
+			{
+				digest[(i * 4) + 0] = (uint8_t)((htonl(buffer[i]) & 0x000000FF));
+				digest[(i * 4) + 1] = (uint8_t)((htonl(buffer[i]) & 0x0000FF00) >>  8);
+				digest[(i * 4) + 2] = (uint8_t)((htonl(buffer[i]) & 0x00FF0000) >> 16);
+				digest[(i * 4) + 3] = (uint8_t)((htonl(buffer[i]) & 0xFF000000) >> 24);
+			}
+			return (0) ;
+		default:
+			ft_fprintf(2, "print: unknown len\n");
+			return (1);
+	}
+}
 
 void    print_usage()
 {
@@ -37,15 +64,10 @@ void    print_usage()
 
 void    print_input_digest(int opt, uint8_t *digest, const uint32_t *buffer, size_t len)
 {
-	for(unsigned int i = 0; i < len / 4; ++i)
-	{
-		digest[(i * 4) + 0] = (uint8_t)((buffer[i] & 0x000000FF));
-		digest[(i * 4) + 1] = (uint8_t)((buffer[i] & 0x0000FF00) >>  8);
-		digest[(i * 4) + 2] = (uint8_t)((buffer[i] & 0x00FF0000) >> 16);
-		digest[(i * 4) + 3] = (uint8_t)((buffer[i] & 0xFF000000) >> 24);
-	}
+	if (set_digest(digest, buffer, len))
+		return ;
 	if (!(opt & e_p) && !(opt & e_q))
-		ft_printf("(stdin) = ");
+		ft_printf("(stdin)= ");
 	for(unsigned int i = 0; i < len; ++i)
 			put_hex(digest[i]);
 	ft_putchar_fd('\n', 1);
@@ -53,13 +75,8 @@ void    print_input_digest(int opt, uint8_t *digest, const uint32_t *buffer, siz
 
 void	print_digest(int opt, uint8_t *digest, const uint32_t *buffer, size_t len, char *str)
 {
-	for(unsigned int i = 0; i < len / 4; ++i)
-	{
-		digest[(i * 4) + 0] = (uint8_t)((htonl(buffer[i]) & 0x000000FF));
-		digest[(i * 4) + 1] = (uint8_t)((htonl(buffer[i]) & 0x0000FF00) >>  8);
-		digest[(i * 4) + 2] = (uint8_t)((htonl(buffer[i]) & 0x00FF0000) >> 16);
-		digest[(i * 4) + 3] = (uint8_t)((htonl(buffer[i]) & 0xFF000000) >> 24);
-	}
+	if (set_digest(digest, buffer, len))
+		return ;
 	if (!(opt & e_r) && !(opt & e_q))
 	{
 		switch (len)
@@ -74,18 +91,14 @@ void	print_digest(int opt, uint8_t *digest, const uint32_t *buffer, size_t len, 
 				if (opt & e_file)
 					ft_printf("SHA256 (%s) = ", str);
 				else
-				{
 					ft_printf("SHA256 (\"%s\") = ", str);
-				}
 				break ;
 			default:
 				ft_fprintf(2, "print: unknown len\n");
 				return ;
 		}
 		for(unsigned int i = 0; i < len; ++i)
-		{
 			put_hex(digest[i]);
-		}
 	}
 	else if (!(opt & e_q))
 	{

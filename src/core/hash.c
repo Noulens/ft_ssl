@@ -22,8 +22,8 @@ void    *do_md5(void *data)
 	if (to_digest->str)
 	{
 		MD5ctx_init(&ctx);
-		md5(&ctx, to_digest->str, to_digest->flags, ft_strlen(to_digest->str));
-		md5append(&ctx, to_digest->flags);
+		md5(&ctx, to_digest->str, ft_strlen(to_digest->str));
+		md5append(&ctx);
 		print_digest(to_digest->flags, ctx.digest, ctx.buffer, MD5_DIGEST_LGTH, to_digest->str);
 	}
 	while (to_digest->files && *to_digest->files)
@@ -63,8 +63,8 @@ void    *do_sha256(void *data)
 	if (to_digest->str)
 	{
 		initSha256Ctx(&ctx, to_digest->flags);
-		sha256(&ctx, to_digest->str, to_digest->flags, ft_strlen(to_digest->str));
-		sha256append(&ctx, to_digest->flags);
+		sha256(&ctx, to_digest->str, ft_strlen(to_digest->str));
+		sha256append(&ctx);
 		print_digest(to_digest->flags, ctx.digest, ctx.buffer, SHA256_DIGEST_LGTH, to_digest->str);
 	}
 	while (to_digest->files && *to_digest->files)
