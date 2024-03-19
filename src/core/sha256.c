@@ -190,10 +190,11 @@ void	sha256append(t_sha256Context *ctx)
 	for (size_t i = 0; i < len; i += 64)
 	{
 		offset = full_message + i;
-		sha256rounds(ctx, offset, i == len - 64 ? TRUE : FALSE);
+		sha256rounds(ctx, offset, i == len - 64);
 	}
 	free(full_message);
-	full_message = offset = NULL;
+	full_message = NULL;
+	offset = NULL;
 }
 
 void	sha256(t_sha256Context *ctx, char *s, size_t l)
