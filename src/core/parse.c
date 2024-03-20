@@ -25,19 +25,10 @@ void *HashParser(int ac, char **av)
 {
 	size_t			len;
 	t_hash 			*opt = NULL;
-	t_check_endian	data;
 
 	if (!(opt = (t_hash *)malloc(sizeof(t_hash))))
 		error("hash parser", errno, TRUE);
 	opt->flags = 0;
-	data.i = 0x01020304;
-	if (data.bytes[0] == 0x04)
-		opt->flags |= e_little;
-	else
-	{
-		ft_fprintf(2, "ft_ssl: init_args: Unknown endianness\n");
-		error("Unkown endianness", -1, TRUE);
-	}
 	opt->str = NULL;
 	opt->files = NULL;
 	av += 2;
@@ -68,7 +59,8 @@ void *HashParser(int ac, char **av)
 							ft_putstr_fd("\"\n", STDERR_FILENO);
 							clean_opt_hash(opt);
 							exit(1);
-						} else
+						}
+						else
 						{
 							++av;
 							len--;
@@ -90,7 +82,8 @@ void *HashParser(int ac, char **av)
 				if (*av && !(opt->flags & e_s))
 					++*av;
 			}
-		} else
+		}
+		else
 			break;
 		len--;
 		++av;
