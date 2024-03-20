@@ -57,8 +57,8 @@ void    print_usage()
 {
 	ft_putstr_fd("help:\n\n", 2);
 	ft_putstr_fd("Message Digest commands:\n", 2);
-	ft_putstr_fd("md5\n", 2);
-	ft_putstr_fd("sha256\n", 2);
+	ft_putstr_fd("md5 [-p -q -r -s]\n", 2);
+	ft_putstr_fd("sha256 [-p -q -r -s]\n", 2);
 	ft_putchar_fd('\n', 2);
 }
 
