@@ -40,11 +40,6 @@ void *HashParser(int ac, char **av)
 	}
 	opt->str = NULL;
 	opt->files = NULL;
-	if (ac == 2)
-	{
-		opt->flags |= e_one_op;
-		return (opt);
-	}
 	av += 2;
 	len = ft_ptrlen((const char **) av);
 	while (len > 0)
@@ -102,5 +97,7 @@ void *HashParser(int ac, char **av)
 	}
 	if (len > 0)
 		opt->files = av;
+	if ((!opt->files && !opt->str) || ac == 2)
+		opt->flags |= e_one_op;
 	return (opt);
 }

@@ -18,7 +18,6 @@ SRCS		=	$(addprefix src/,						\
 											common.c	\
 											parse.c)	\
 					$(addprefix tools/,		print.c		\
-											readata.c	\
 											quit.c)		\
 				)
 

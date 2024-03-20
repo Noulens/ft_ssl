@@ -62,12 +62,14 @@ void    print_usage()
 	ft_putchar_fd('\n', 2);
 }
 
-void    print_input_digest(int opt, uint8_t *digest, const uint32_t *buffer, size_t len)
+void    print_input_digest(int opt, uint8_t *digest, const uint32_t *buffer, size_t len, char *str)
 {
 	if (set_digest(digest, buffer, len))
 		return ;
 	if (!(opt & e_p) && !(opt & e_q))
 		ft_printf("(stdin)= ");
+	else if (!(opt & e_q))
+		ft_printf("(\"%s\")= ", str);
 	for(unsigned int i = 0; i < len; ++i)
 			put_hex(digest[i]);
 	ft_putchar_fd('\n', 1);
@@ -83,15 +85,15 @@ void	print_digest(int opt, uint8_t *digest, const uint32_t *buffer, size_t len, 
 		{
 			case MD5_DIGEST_LGTH:
 				if (opt & e_file)
-					ft_printf("MD5 (%s) = ", str);
+					ft_printf("MD5 (%s)= ", str);
 				else
-					ft_printf("MD5 (\"%s\") = ", str);
+					ft_printf("MD5 (\"%s\")= ", str);
 				break ;
 			case SHA256_DIGEST_LGTH:
 				if (opt & e_file)
-					ft_printf("SHA256 (%s) = ", str);
+					ft_printf("SHA256 (%s)= ", str);
 				else
-					ft_printf("SHA256 (\"%s\") = ", str);
+					ft_printf("SHA256 (\"%s\")= ", str);
 				break ;
 			default:
 				ft_fprintf(2, "print: unknown len\n");

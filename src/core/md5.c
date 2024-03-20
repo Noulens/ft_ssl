@@ -55,12 +55,32 @@ void	MD5ctx_init(t_MD5Context *ctx)
 	ft_memset(ctx->input, 0, 64);
 }
 
+void	splitInWords(uint32_t *X, const uint8_t *full_message)
+{
+	for (size_t j = 0; j < 16; j++)
+		X[j] |= full_message[j * 4]
+				| (full_message[j * 4 + 1] << 8)
+				| (full_message[j * 4 + 2] << 16)
+				| (full_message[j * 4 + 3] << 24);
+}
+
+void	rotate_buffers(uint32_t *buffer, size_t len)
+{
+	uint32_t	tmp = 0;
+
+	tmp = buffer[len - 1];
+	for (int rotb = len - 1; rotb > 0; rotb--)
+		buffer[rotb] = buffer[rotb - 1];
+	buffer[a] = tmp;
+}
+
 void md5rounds(t_MD5Context *ctx, const uint32_t *X)
 {
 	uint32_t AA = ctx->buffer[a];
 	uint32_t BB = ctx->buffer[b];
 	uint32_t CC = ctx->buffer[c];
 	uint32_t DD = ctx->buffer[d];
+
 	for (size_t l = 0; l < 16; l++)
 	{
 		ctx->buffer[a] = ctx->buffer[b] +
@@ -153,32 +173,28 @@ void	md5append(t_MD5Context *ctx)
 		md5rounds(ctx, X);
 	}
 	free(full_message);
-	full_message = offset = NULL;
+	full_message = NULL;
+	offset = NULL;
 }
 
-void	md5_readinput(t_hash *to_digest, t_MD5Context *ctx, int fd)
+char	*md5_readinput(t_hash *to_digest, t_MD5Context *ctx, int fd)
 {
 	char    buff[BUFFER_SIZE + 1];
+	char 	*str = NULL;
+	char 	*nl = NULL;
 	ssize_t nb_read;
-	int     start = 1;
 
 	MD5ctx_init(ctx);
 	ft_memset(buff, 0, BUFFER_SIZE + 1);
 	while ((nb_read = read(fd, buff, BUFFER_SIZE)) >= 0)
 	{
-		(void)(!(to_digest->flags & e_file) && !(to_digest->flags & e_q) && start == 1 && (to_digest->flags & e_p) && ft_printf("(\"") && (start = 0));
 		buff[nb_read] = 0;
 		md5(ctx, buff, nb_read);
-		if (nb_read && nb_read < BUFFER_SIZE && buff[nb_read - 1] == '\n')
+		if (!(to_digest->flags & e_file) && !nl)
 		{
-			for (size_t i = nb_read - 1; buff[i] == '\n'; i--)
-			{
-				buff[i] = 0;
-			}
+			nl = ft_strchr(buff, '\n');
+			str = ft_append(str, buff);
 		}
-		if (!(to_digest->flags & e_file) && (to_digest->flags & e_p) && (to_digest->flags & e_q) && (to_digest->flags & e_r))
-			ft_printf("%s", buff);
-		(void)(!(to_digest->flags & e_file) && !(to_digest->flags & e_q) && !start && (to_digest->flags & e_p) && ft_printf("%s", buff));
 		if (nb_read == 0)
 			break;
 		ft_memset(buff, 0, BUFFER_SIZE + 1);
@@ -189,11 +205,10 @@ void	md5_readinput(t_hash *to_digest, t_MD5Context *ctx, int fd)
 		clean_opt_hash(to_digest);
 		exit(1);
 	}
-	else
-	{
-		md5append(ctx);
-		(void)(!(to_digest->flags & e_file) && !(to_digest->flags & e_q) && !start && (to_digest->flags & e_p) && ft_printf("\")= "));
-	}
+	md5append(ctx);
+	if (!(to_digest->flags & e_file) && nl && str && (nl = ft_strchr(str, '\n')))
+		*nl = '\0';
+	return (str);
 }
 
 uint32_t F(uint32_t X, uint32_t Y, uint32_t Z)

@@ -5,11 +5,6 @@
 #ifndef FT_SSL_STRUCT_H
 # define FT_SSL_STRUCT_H
 
-typedef uint32_t	word;
-typedef uint8_t		byte;
-typedef uint64_t	dword;
-typedef uint16_t	dbyte;
-
 # define MD5_DIGEST_LGTH 16
 # define SHA256_DIGEST_LGTH 32
 
@@ -47,12 +42,6 @@ typedef enum e_operation
 	e_is_cipher = 0b0,
 	e_is_hash = 0b00000001
 }   t_operation;
-
-typedef union u_dword
-{
-	uint64_t dw;
-	unsigned char b[8];
-}   t_dword;
 
 typedef struct s_md5ctx
 {

@@ -16,8 +16,8 @@ uint32_t rotateRight(uint32_t x, uint32_t n)
 
 size_t bitsToAdd(size_t len)
 {
-	size_t bits = len * 8;
-	size_t bits_to_add;
+	size_t	bits = len * 8;
+	size_t	bits_to_add;
 
 	if (!len)
 		bits_to_add = 448;
@@ -35,33 +35,4 @@ size_t bitsToAdd(size_t len)
 		}
 	}
 	return bits_to_add;
-}
-
-void	rotate_buffers(uint32_t *buffer, size_t len)
-{
-	uint32_t	tmp = 0;
-
-	tmp = buffer[len - 1];
-	for (int rotb = len - 1; rotb > 0; rotb--)
-		buffer[rotb] = buffer[rotb - 1];
-	buffer[a] = tmp;
-}
-
-void	splitInWords(uint32_t *X, const uint8_t *full_message)
-{
-	for (size_t j = 0; j < 16; j++)
-		X[j] |= full_message[j * 4]
-				| (full_message[j * 4 + 1] << 8)
-				| (full_message[j * 4 + 2] << 16)
-				| (full_message[j * 4 + 3] << 24);
-}
-
-uint32_t	mod_add(uint32_t a, uint32_t b)
-{
-	uint32_t	sum;
-
-	sum = a + b;
-	if ( sum < a || sum < b)
-		sum -= UINT32_MAX;
-	return (sum);
 }

@@ -39,13 +39,12 @@ void		rotate_buffers(uint32_t *buffer, size_t len);
 uint32_t	rotateRight(uint32_t x, uint32_t n);
 uint32_t	rotateLeft(uint32_t x, uint32_t n);
 void		splitInWords(uint32_t *X, const uint8_t *full_message);
-uint32_t	mod_add(uint32_t a, uint32_t b);
 
 /*
  * print function
  * */
 void		print_digest(int opt, uint8_t *digest, const uint32_t *buffer, size_t len, char *str);
-void        print_input_digest(int opt, uint8_t *digest, const uint32_t *buffer, size_t len);
+void		print_input_digest(int opt, uint8_t *digest, const uint32_t *buffer, size_t len, char *str);
 
 /*
  * md5 functions
@@ -57,22 +56,15 @@ uint32_t	I(uint32_t X, uint32_t Y, uint32_t Z);
 void		md5(t_MD5Context *ctx, char *s, size_t l);
 void		MD5ctx_init(t_MD5Context *ctx);
 void		md5append(t_MD5Context *ctx);
-void		md5_readinput(t_hash *to_digest, t_MD5Context *ctx, int fd);
+char		*md5_readinput(t_hash *to_digest, t_MD5Context *ctx, int fd);
 
 /*
  * sha256 functions
  */
-void		sha256_readinput(t_hash *to_digest, t_sha256Context *ctx, int fd);
-void		initSha256Ctx(t_sha256Context *ctx, int opt);
+char		*sha256_readinput(t_hash *to_digest, t_sha256Context *ctx, int fd);
+void		initSha256Ctx(t_sha256Context *ctx);
 void		sha256(t_sha256Context *ctx, char *s, size_t len);
 void		sha256append(t_sha256Context *ctx);
-uint32_t	CH(uint32_t x, uint32_t y, uint32_t z);
-uint32_t	MAJ(uint32_t x, uint32_t y, uint32_t z);
-uint32_t	BSIG0(uint32_t x);
-uint32_t	BSIG1(uint32_t x);
-uint32_t	SSIG0(uint32_t x);
-uint32_t	SSIG1(uint32_t x);
-
 
 /*
  * global variable for toolbox

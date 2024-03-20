@@ -5,17 +5,12 @@
 #include "ft_ssl.h"
 
 
-//ROTATE RIGHT 32 BITS NUMBER
 #define ROTRIGHT(a,b) ((a >> b) ^ (a << (32-(b))))
-//OPERATION TO CALCULATE CH
 #define CH(x,y,z) ((x & y) ^ (z & ~x))
-//OPERATION TO CALCULTATE MAJ
 #define MAJ(x,y,z) ((x & y) ^ (x & z) ^ (y & z))
 #define EP0(x) (ROTRIGHT(x,2) ^ ROTRIGHT(x,13) ^ ROTRIGHT(x,22))
 #define EP1(x) (ROTRIGHT(x,6) ^ ROTRIGHT(x,11) ^ ROTRIGHT(x,25))
-//OPERATION TO CALCULATE S0
 #define S0(x) (ROTRIGHT(x,7) ^ ROTRIGHT(x,18) ^ (x >> 3))
-//OPERATION TO CALCULATE S1
 #define S1(x) (ROTRIGHT(x,17) ^ ROTRIGHT(x,19) ^ (x >> 10))
 
 #define H0 0x6a09e667
@@ -65,10 +60,8 @@ static const uint8_t PADDING[64] =
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 };
 
-void	initSha256Ctx(t_sha256Context *ctx, int opt)
+void	initSha256Ctx(t_sha256Context *ctx)
 {
-	(void)opt;
-
 	ctx->buffer[0] = H0;
 	ctx->buffer[1] = H1;
 	ctx->buffer[2] = H2;
@@ -82,23 +75,24 @@ void	initSha256Ctx(t_sha256Context *ctx, int opt)
 	ft_memset(ctx->input, 0, 64);
 }
 
-void	sha256_readinput(t_hash *to_digest, t_sha256Context *ctx, int fd)
+char	*sha256_readinput(t_hash *to_digest, t_sha256Context *ctx, int fd)
 {
 	char    buff[BUFFER_SIZE + 1];
+	char 	*str = NULL;
+	char 	*nl = NULL;
 	ssize_t nb_read;
-	int     start = 1;
 
-	initSha256Ctx(ctx, to_digest->flags);
+	initSha256Ctx(ctx);
 	ft_memset(buff, 0, BUFFER_SIZE + 1);
 	while ((nb_read = read(fd, buff, BUFFER_SIZE)) >= 0)
 	{
-		(void)(!(to_digest->flags & e_file) && !(to_digest->flags & e_q) && start == 1 && (to_digest->flags & e_p) && ft_printf("(\""));
-		(void)(!(to_digest->flags & e_file) && !(to_digest->flags & e_q) && (to_digest->flags & e_p) && (start = 0));
 		buff[nb_read] = 0;
 		sha256(ctx, buff, nb_read);
-		if (nb_read && nb_read < BUFFER_SIZE && buff[nb_read - 1] == '\n')
-			buff[nb_read - 1] = 0;
-		(void)(!(to_digest->flags & e_file) && !(to_digest->flags & e_q) && !start && (to_digest->flags & e_p) && ft_printf("%s", buff));
+		if (!(to_digest->flags & e_file) && !nl)
+		{
+			nl = ft_strchr(buff, '\n');
+			str = ft_append(str, buff);
+		}
 		if (nb_read == 0)
 			break;
 		ft_memset(buff, 0, BUFFER_SIZE + 1);
@@ -109,18 +103,15 @@ void	sha256_readinput(t_hash *to_digest, t_sha256Context *ctx, int fd)
 		clean_opt_hash(to_digest);
 		exit(1);
 	}
-	else
-	{
-		sha256append(ctx);
-		(void)(!(to_digest->flags & e_file) && !(to_digest->flags & e_q) && !start && (to_digest->flags & e_p) && ft_printf("\")= "));
-	}
+	sha256append(ctx);
+	if (!(to_digest->flags & e_file) && nl && str && (nl = ft_strchr(str, '\n')))
+		*nl = '\0';
+	return (str);
 }
 
 void	sha256rounds(t_sha256Context *ctx, uint8_t *W, int opt)
 {
 	uint32_t	m[64] __attribute__((aligned(16))) = {};
-	uint32_t	i = 0;
-	uint32_t	j = 0;
 	uint32_t	T1;
 	uint32_t	T2;
 	uint32_t	A = ctx->buffer[a];
@@ -145,7 +136,7 @@ void	sha256rounds(t_sha256Context *ctx, uint8_t *W, int opt)
 		W[62] = (bitLen >> 8);
 		W[63] = bitLen;
 	}
-	for (; i < 16; ++i, j += 4)
+	for (uint32_t i = 0, j = 0; i < 16; ++i, j += 4)
 		m[i] = W[j] << 24 | W[j + 1] << 16 | W[j + 2] << 8 | W[j + 3];
 	for (size_t t = 16; t < 64; t++)
 		m[t] = S1(m[t - 2]) + m[t - 7] + S0(m[t - 15]) + m[t - 16];
