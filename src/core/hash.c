@@ -9,10 +9,11 @@ void    *do_md5(void *data)
 	t_hash			*to_digest = (t_hash *)data;
 	t_MD5Context	ctx = {0};
 
-	if ((to_digest->flags & e_one_op) || (to_digest->flags & e_p) || (to_digest->flags & e_q) || (to_digest->flags & e_r))
+	if ((to_digest->flags & e_one_op) || (to_digest->flags & e_p))
 	{
-		md5_readinput(to_digest, &ctx, STDIN_FILENO);
-		print_input_digest(to_digest->flags, ctx.digest, ctx.buffer, MD5_DIGEST_LGTH, NULL);
+		char *str = md5_readinput(to_digest, &ctx, STDIN_FILENO);
+		print_input_digest(to_digest->flags, ctx.digest, ctx.buffer, MD5_DIGEST_LGTH, str);
+		free(str);
 		if (to_digest->flags & e_one_op)
 		{
 			clean_opt_hash(to_digest);
@@ -50,7 +51,7 @@ void    *do_sha256(void *data)
 	t_hash			*to_digest = (t_hash *)data;
 	t_sha256Context	ctx = {0};
 
-	if ((to_digest->flags & e_one_op) || (to_digest->flags & e_p) || (to_digest->flags & e_q))
+	if ((to_digest->flags & e_one_op) || (to_digest->flags & e_p))
 	{
 		char *str = sha256_readinput(to_digest, &ctx, STDIN_FILENO);
 		print_input_digest(to_digest->flags, ctx.digest, ctx.buffer, SHA256_DIGEST_LGTH, str);
@@ -63,7 +64,7 @@ void    *do_sha256(void *data)
 	}
 	if (to_digest->str)
 	{
-		initSha256Ctx(&ctx, to_digest->flags);
+		initSha256Ctx(&ctx);
 		sha256(&ctx, to_digest->str, ft_strlen(to_digest->str));
 		sha256append(&ctx);
 		print_digest(to_digest->flags, ctx.digest, ctx.buffer, SHA256_DIGEST_LGTH, to_digest->str);
